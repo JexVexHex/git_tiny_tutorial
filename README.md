@@ -53,7 +53,7 @@ By the end of this tutorial, you will be able to:
 ## 🛠️ How to Use
 
 1. **Clone or Download**: Get the tutorial files on your local machine
-2. **Open in Browser**: Open `index.html` in your web browser
+2. **Open in Browser**: Open `index.html` in your web browser (favicon included)
 3. **Start Learning**: Click "Start Learning" to begin your Git journey
 4. **Follow Along**: Complete each lesson, take quizzes, and practice exercises
 5. **Track Progress**: Your progress is automatically saved in your browser
@@ -73,9 +73,10 @@ git-tiny-tutorial/
 │   └── 05-advanced-techniques.md
 ├── README.md               # This file
 └── Prompt.md               # Original requirements
+├── favicon.ico              # Pentagram favicon for browser tab
 ```
 
-## 🎨 Design Features
+## �� Design Features
 
 - **Modern UI**: Clean, professional design with smooth animations
 - **Progress Tracking**: Visual progress bar that follows your learning journey
