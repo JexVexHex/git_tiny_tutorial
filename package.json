@@ -1,0 +1,43 @@
+{
+  "name": "git-tiny-tutorial",
+  "version": "1.0.0",
+  "description": "An interactive Git tutorial designed to bring beginners up-to-speed with common Git operations",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "serve": "python3 -m http.server 8000",
+    "dev": "live-server --port=8000 --open=index.html",
+    "build": "echo 'No build process needed - static files only'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "git",
+    "tutorial",
+    "learning",
+    "education",
+    "version-control",
+    "interactive",
+    "beginner-friendly"
+  ],
+  "author": "Git Tiny Tutorial™",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/git-tiny-tutorial.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/git-tiny-tutorial/issues"
+  },
+  "homepage": "https://github.com/yourusername/git-tiny-tutorial#readme",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
