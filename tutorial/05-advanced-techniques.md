@@ -30,13 +30,13 @@ git reset --hard HEAD~3
 ### Reverting Commits
 ```bash
 # Create a new commit that undoes a previous commit
-git revert commit-hash
+git revert _commit-hash_
 
 # Revert multiple commits
 git revert commit1..commit2
 
 # Revert without creating a commit
-git revert --no-commit commit-hash
+git revert --no-commit _commit-hash_
 ```
 
 ## Stashing Changes
@@ -85,7 +85,7 @@ git stash push -m "message" file1.txt file2.txt
 git rebase -i HEAD~3
 
 # Interactive rebase from specific commit
-git rebase -i commit-hash
+git rebase -i _commit-hash_
 ```
 
 ### Rebase Options
@@ -107,7 +107,7 @@ squash g7h8i9j Update tests
 ### Selecting Specific Commits
 ```bash
 # Cherry-pick a single commit
-git cherry-pick commit-hash
+git cherry-pick _commit-hash_
 
 # Cherry-pick multiple commits
 git cherry-pick commit1 commit2 commit3
@@ -116,7 +116,7 @@ git cherry-pick commit1 commit2 commit3
 git cherry-pick start-commit..end-commit
 
 # Cherry-pick without committing
-git cherry-pick --no-commit commit-hash
+git cherry-pick --no-commit _commit-hash_
 ```
 
 ### Resolving Cherry-Pick Conflicts
@@ -332,7 +332,7 @@ git checkout feature-branch
 ### Scenario 2: Need to Undo a Public Commit
 ```bash
 # Use revert instead of reset
-git revert commit-hash
+git revert _commit-hash_
 git push origin main
 ```
 
