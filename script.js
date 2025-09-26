@@ -4,15 +4,17 @@ class GitTutorial {
         this.currentLesson = 0;
         this.lessons = [
             '01-git-basics.md',
-            '02-git-terminology.md', 
+            '02-git-terminology.md',
             '03-branches-and-merging.md',
             '04-remote-repositories.md',
-            '05-advanced-techniques.md'
+            '05-advanced-techniques.md',
+            '06-git-merge-mastery.md'
         ];
         this.quizData = this.initializeQuizData();
         this.exerciseData = this.initializeExerciseData();
         this.userProgress = this.loadProgress();
         this.startTime = Date.now();
+        this.scrollTimeout = null; // For throttling scroll events
         
         this.initializeApp();
     }
@@ -284,6 +286,52 @@ class GitTutorial {
                     correct: 1,
                     explanation: "Git hooks are scripts that run automatically at certain points in the Git workflow."
                 }
+            ],
+            5: [ // Merge Mastery
+                {
+                    question: "What does `git merge --abort` do?",
+                    options: [
+                        "Resets to the merge commit",
+                        "Aborts the merge process and attempts to restore the pre-merge state",
+                        "Automatically resolves conflicts",
+                        "Deletes the merged branch"
+                    ],
+                    correct: 1,
+                    explanation: "`git merge --abort` stops the merge and attempts to restore your branch to the state it was in before the merge started."
+                },
+                {
+                    question: "Which option ensures Git refuses a merge instead of creating a merge commit?",
+                    options: [
+                        "`--no-ff`",
+                        "`--ff-only`",
+                        "`--squash`",
+                        "`--autostash`"
+                    ],
+                    correct: 1,
+                    explanation: "`--ff-only` allows a merge only if it can fast-forward; otherwise it aborts without making changes."
+                },
+                {
+                    question: "What benefit does enabling rerere provide?",
+                    options: [
+                        "Automatic fast-forward merges",
+                        "Reuses previously recorded conflict resolutions",
+                        "Signs merge commits with GPG",
+                        "Automatically stashes changes before a merge"
+                    ],
+                    correct: 1,
+                    explanation: "rerere (`reuse recorded resolution`) remembers how you resolved conflicts and re-applies that resolution next time."
+                },
+                {
+                    question: "When is `git merge --squash` most appropriate?",
+                    options: [
+                        "When you want to preserve every commit from a feature branch",
+                        "When merging unrelated repositories",
+                        "When you need a single consolidated commit without merge metadata",
+                        "When resolving conflicts automatically"
+                    ],
+                    correct: 1,
+                    explanation: "`--squash` lets you combine all changes into a single commit without creating a merge commit."
+                }
             ]
         };
     }
@@ -436,7 +484,59 @@ git config --global alias.co checkout
 git config --global alias.br branch
 \`\`\`
 
-**Level up!** These advanced techniques will make you a Git power user.`
+**Level up!** These advanced techniques will make you a Git power user.`,
+            5: `# Practice Exercise: Merge Conflict Mastery
+
+Sharpen your merge skills with this deliberate conflict exercise:
+
+\`\`\`bash
+# 1. Create a shared base commit
+git checkout -b merge-base
+echo "Shared intro" > merge.txt
+git add merge.txt
+git commit -m "chore: add merge baseline"
+
+# 2. Create diverging branches
+git checkout -b feature/alpha
+echo "Alpha change" >> merge.txt
+git add merge.txt
+git commit -m "feat: add alpha change"
+
+git checkout merge-base
+git checkout -b feature/beta
+echo "Beta change" >> merge.txt
+git add merge.txt
+git commit -m "feat: add beta change"
+\`\`\`
+
+3. **Attempt the merge**
+
+\`\`\`bash
+git checkout feature/alpha
+git merge feature/beta  # expect a conflict in merge.txt
+\`\`\`
+
+4. **Resolve with diff3 markers**
+
+\`\`\`bash
+git config merge.conflictStyle diff3
+\`\`\`
+
+Open \`merge.txt\`, keep the shared intro, and craft a final version that includes both Alpha and Beta changes harmoniously.
+
+5. **Reuse your resolution**
+
+\`\`\`bash
+git add merge.txt
+git merge --continue
+
+# Enable rerere and recreate the conflict
+git config rerere.enabled true
+git merge --abort
+git merge feature/beta  # rerere should reapply your resolution
+\`\`\`
+
+**Goal:** Understand conflict markers, practice deliberate resolution, and experience how rerere accelerates repeated merges.`
         };
     }
 
@@ -494,10 +594,11 @@ git config --global alias.br branch
     getLessonTitle(lessonIndex) {
         const titles = [
             'Git Basics - Understanding Version Control',
-            'Git Terminology - Understanding the Language', 
+            'Git Terminology - Understanding the Language',
             'Branches and Merging - Working with Multiple Versions',
             'Remote Repositories - Collaboration and Backup',
-            'Advanced Git Techniques - Power User Skills'
+            'Advanced Git Techniques - Power User Skills',
+            'Git Merge Mastery - Orchestrating Histories'
         ];
         return titles[lessonIndex] || 'Lesson';
     }
@@ -710,26 +811,64 @@ git config --global alias.br branch
     }
 
     updateProgressBar() {
-        const progress = ((this.currentLesson + 1) / this.lessons.length) * 100;
+        // Initialize progress bar with scroll-based progress
+        const scrollProgress = this.calculateScrollProgress();
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
         
-        progressFill.style.width = `${progress}%`;
-        progressText.textContent = `${Math.round(progress)}% Complete`;
+        progressFill.style.width = `${scrollProgress}%`;
+        progressText.textContent = `${Math.round(scrollProgress)}% Completed`;
         
         // Show progress bar when scrolling
-        if (this.currentLesson > 0) {
+        if (window.scrollY > 100) {
             document.querySelector('.progress-container').classList.add('visible');
         }
     }
 
     handleScroll() {
-        const progressContainer = document.querySelector('.progress-container');
-        if (window.scrollY > 100) {
-            progressContainer.classList.add('visible');
-        } else {
-            progressContainer.classList.remove('visible');
+        // Throttle scroll events for better performance
+        if (this.scrollTimeout) {
+            clearTimeout(this.scrollTimeout);
         }
+        
+        this.scrollTimeout = setTimeout(() => {
+            const progressContainer = document.querySelector('.progress-container');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            // Show/hide progress bar based on scroll position
+            if (window.scrollY > 100) {
+                progressContainer.classList.add('visible');
+            } else {
+                progressContainer.classList.remove('visible');
+            }
+            
+            // Calculate scroll progress percentage
+            const scrollProgress = this.calculateScrollProgress();
+            
+            // Update progress bar to reflect scroll position
+            progressFill.style.width = `${scrollProgress}%`;
+            progressText.textContent = `${Math.round(scrollProgress)}% Scrolled`;
+        }, 10); // 10ms throttle for smooth updates
+    }
+    
+    calculateScrollProgress() {
+        // Get the total scrollable height
+        const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+        
+        // Handle edge case where document height is 0 or very small
+        if (documentHeight <= 0) {
+            return 0;
+        }
+        
+        // Get current scroll position
+        const scrollTop = window.scrollY;
+        
+        // Calculate percentage (0-100)
+        const scrollPercentage = (scrollTop / documentHeight) * 100;
+        
+        // Ensure it stays within 0-100 range
+        return Math.min(Math.max(scrollPercentage, 0), 100);
     }
 
     animateContent() {
