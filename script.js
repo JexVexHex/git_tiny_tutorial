@@ -31,6 +31,8 @@ class GitTutorial {
         document.getElementById('backButton').addEventListener('click', () => this.showWelcome());
         document.getElementById('prevLesson').addEventListener('click', () => this.previousLesson());
         document.getElementById('nextLesson').addEventListener('click', () => this.nextLesson());
+        document.getElementById('prevLessonBottom').addEventListener('click', () => this.previousLesson());
+        document.getElementById('nextLessonBottom').addEventListener('click', () => this.nextLesson());
         document.getElementById('restartTutorial').addEventListener('click', () => this.restartTutorial());
 
         // Navigation links
@@ -807,6 +809,9 @@ git merge feature/beta  # rerere should reapply your resolution
         // Update lesson buttons
         document.getElementById('prevLesson').disabled = this.currentLesson === 0;
         document.getElementById('nextLesson').textContent = 
+            this.currentLesson === this.lessons.length - 1 ? 'Complete' : 'Next →';
+        document.getElementById('prevLessonBottom').disabled = this.currentLesson === 0;
+        document.getElementById('nextLessonBottom').textContent = 
             this.currentLesson === this.lessons.length - 1 ? 'Complete' : 'Next →';
     }
 

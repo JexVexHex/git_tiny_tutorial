@@ -123,7 +123,7 @@ A **commit** is a snapshot of your project at a specific point in time. Each com
 
 ```bash
 # View commit details
-git show commit-hash
+git show _commit-hash_
 
 # View commit history
 git log --oneline --graph
@@ -208,8 +208,7 @@ git rebase -i HEAD~3
 ### Rolling Back a Commit
 ```bash
 # Create a new commit that undoes changes
-git revert commit-hash
-
+git revert _commit-hash_
 # Reset to a previous commit (destructive)
 git reset --hard HEAD~1
 ```
