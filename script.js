@@ -21,6 +21,7 @@ class GitTutorial {
 
     initializeApp() {
         this.setupEventListeners();
+        this.setupTheme();
         this.updateProgressBar();
         this.showWelcome();
     }
@@ -55,6 +56,41 @@ class GitTutorial {
 
         // Scroll events for progress bar
         window.addEventListener('scroll', () => this.handleScroll());
+    }
+    
+    setupTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'system';
+        const select = document.getElementById('themeSelect');
+
+        const apply = (theme) => {
+            if (theme === 'system') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+        };
+
+        apply(savedTheme);
+
+        if (select) {
+            select.value = savedTheme;
+            select.addEventListener('change', (e) => {
+                const value = e.target.value;
+                localStorage.setItem('theme', value);
+                apply(value);
+            });
+        }
+
+        const mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+        if (mql && mql.addEventListener) {
+            mql.addEventListener('change', () => {
+                const current = localStorage.getItem('theme') || 'system';
+                if (current === 'system') {
+                    // let CSS media query handle the change by removing explicit attribute
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            });
+        }
     }
 
     initializeQuizData() {
