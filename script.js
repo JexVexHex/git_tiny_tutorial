@@ -613,6 +613,9 @@ git merge feature/beta  # rerere should reapply your resolution
             document.getElementById('lesson-content').style.display = 'block';
             document.getElementById('completion').style.display = 'none';
             
+            // Scroll to top when loading a lesson
+            this.scrollToTop(true);
+            
             // Update progress
             this.updateProgressBar();
             
@@ -910,6 +913,18 @@ git merge feature/beta  # rerere should reapply your resolution
         
         // Ensure it stays within 0-100 range
         return Math.min(Math.max(scrollPercentage, 0), 100);
+    }
+    
+    scrollToTop(smooth = true) {
+        try {
+            if (smooth) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                window.scrollTo(0, 0);
+            }
+        } catch (e) {
+            window.scrollTo(0, 0);
+        }
     }
 
     animateContent() {
