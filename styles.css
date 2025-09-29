@@ -15,8 +15,14 @@
     --background-color: #ffffff;
     --surface-color: #f8fafc;
     --text-primary: #1e293b;
-    --text-secondary: #64748b;
+    --text-secondary: #475569;
     --border-color: #e2e8f0;
+    --code-bg: #f1f5f9;
+    --code-text: #0f172a;
+    --success-bg: #f0fdf4;
+    --success-border: #16a34a;
+    --error-bg: #fef2f2;
+    --error-border: #dc2626;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -29,29 +35,47 @@
 /* Dark mode via OS preference */
 @media (prefers-color-scheme: dark) {
     :root {
-        --background-color: #0f1724;
-        --surface-color: #061223;
-        --text-primary: #e6eef8;
-        --text-secondary: #9aa6b2;
-        --border-color: #1f2937;
+        --background-color: #0f172a;
+        --surface-color: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --border-color: #334155;
+        --code-bg: #1e293b;
+        --code-text: #e2e8f0;
+        --success-bg: #0f2c14;
+        --success-border: #16a34a;
+        --error-bg: #2c0f0f;
+        --error-border: #dc2626;
     }
 }
 
 /* Explicit theme overrides */
 [data-theme="dark"] {
-    --background-color: #0f1724;
-    --surface-color: #061223;
-    --text-primary: #e6eef8;
-    --text-secondary: #9aa6b2;
-    --border-color: #1f2937;
+    --background-color: #0f172a;
+    --surface-color: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --border-color: #334155;
+    --code-bg: #1e293b;
+    --code-text: #e2e8f0;
+    --success-bg: #0f2c14;
+    --success-border: #16a34a;
+    --error-bg: #2c0f0f;
+    --error-border: #dc2626;
 }
 
 [data-theme="light"] {
     --background-color: #ffffff;
     --surface-color: #f8fafc;
     --text-primary: #1e293b;
-    --text-secondary: #64748b;
+    --text-secondary: #475569;
     --border-color: #e2e8f0;
+    --code-bg: #f1f5f9;
+    --code-text: #0f172a;
+    --success-bg: #f0fdf4;
+    --success-border: #16a34a;
+    --error-bg: #fef2f2;
+    --error-border: #dc2626;
 }
 
 /* Theme control styles */
@@ -521,13 +545,14 @@ body {
 }
 
 .lesson-content pre {
-    background: #1e293b;
-    color: #e2e8f0;
+    background: var(--code-bg);
+    color: var(--code-text);
     padding: 1.5rem;
     border-radius: var(--radius-md);
     overflow-x: auto;
     margin: 1.5rem 0;
     box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .lesson-content pre code {
@@ -614,13 +639,15 @@ body {
 }
 
 .quiz-option.correct {
-    border-color: var(--success-color);
-    background: #f0fdf4;
+    border-color: var(--success-border);
+    background: var(--success-bg);
+    color: var(--text-primary);
 }
 
 .quiz-option.incorrect {
-    border-color: var(--error-color);
-    background: #fef2f2;
+    border-color: var(--error-border);
+    background: var(--error-bg);
+    color: var(--text-primary);
 }
 
 .quiz-option input[type="radio"] {
@@ -674,13 +701,14 @@ body {
 }
 
 .exercise-content {
-    background: #1e293b;
-    color: #e2e8f0;
+    background: var(--code-bg);
+    color: var(--code-text);
     padding: 1.5rem;
     border-radius: var(--radius-md);
     margin-bottom: 1.5rem;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     overflow-x: auto;
+    border: 1px solid var(--border-color);
 }
 
 .exercise-button {
@@ -767,8 +795,9 @@ body {
 
 /* Footer */
 .footer {
-    background: var(--text-primary);
-    color: white;
+    background: var(--surface-color);
+    color: var(--text-primary);
+    border-top: 1px solid var(--border-color);
     padding: 3rem 0 2rem;
     margin-top: 4rem;
 }
@@ -783,11 +812,11 @@ body {
     font-size: 1.125rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    color: white;
+    color: var(--text-primary);
 }
 
 .footer-section p {
-    color: #94a3b8;
+    color: var(--text-secondary);
     margin-bottom: 1rem;
 }
 
@@ -800,13 +829,13 @@ body {
 }
 
 .footer-section a {
-    color: #94a3b8;
+    color: var(--text-secondary);
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
 .footer-section a:hover {
-    color: white;
+    color: var(--primary-color);
 }
 
 /* Animations */

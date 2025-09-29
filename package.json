@@ -8,7 +8,9 @@
     "serve": "python3 -m http.server 8000",
     "dev": "live-server --port=8000 --open=index.html",
     "build": "echo 'No build process needed - static files only'",
-    "test": "echo 'No tests specified'"
+    "test": "echo 'No tests specified'",
+    "a11y": "pa11y --reporter json http://localhost:8000",
+    "a11y:cli": "pa11y --reporter cli http://localhost:8000"
   },
   "keywords": [
     "git",
@@ -30,7 +32,10 @@
   },
   "homepage": "https://github.com/yourusername/git-tiny-tutorial#readme",
   "devDependencies": {
-    "live-server": "^1.2.2"
+    "axe-cli": "^3.2.1",
+    "axe-core": "^4.10.3",
+    "live-server": "^1.2.2",
+    "pa11y": "^9.0.1"
   },
   "engines": {
     "node": ">=14.0.0"
