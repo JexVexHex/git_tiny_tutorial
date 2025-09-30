@@ -36,6 +36,14 @@
                 <a href="#lesson-5" class="nav-link" data-lesson="5">Advanced</a>
                 <a href="#lesson-6" class="nav-link" data-lesson="6">Merge Mastery</a>
             </div>
+            <div class="search-control">
+                <button class="search-button" id="searchButton" aria-label="Search lessons">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="search-hint">Ctrl+K</span>
+                </button>
+            </div>
             <div class="theme-control">
                 <label for="themeSelect" class="sr-only">Theme</label>
                 <select id="themeSelect" aria-label="Theme selector">
@@ -51,6 +59,47 @@
             </button>
         </div>
     </nav>
+
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal" style="display: none;">
+        <div class="search-modal-backdrop" id="searchBackdrop"></div>
+        <div class="search-modal-content">
+            <div class="search-input-wrapper">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <input
+                    type="text"
+                    id="searchInput"
+                    class="search-input"
+                    placeholder="Search lessons, commands, concepts..."
+                    autocomplete="off"
+                    spellcheck="false"
+                />
+                <button class="search-close" id="searchClose" aria-label="Close search">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-empty">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 38C30.3888 38 38 30.3888 38 21C38 11.6112 30.3888 4 21 4C11.6112 4 4 11.6112 4 21C4 30.3888 11.6112 38 21 38Z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M44 44L33.65 33.65" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p>Start typing to search lessons</p>
+                </div>
+            </div>
+            <div class="search-footer">
+                <div class="search-hints">
+                    <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+                    <span><kbd>Enter</kbd> Select</span>
+                    <span><kbd>Esc</kbd> Close</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="main-content">

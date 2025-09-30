@@ -34,7 +34,7 @@
   "devDependencies": {
     "axe-cli": "^3.2.1",
     "axe-core": "^4.10.3",
-    "live-server": "^1.2.2",
+    "live-server": "^1.2.0",
     "pa11y": "^9.0.1"
   },
   "engines": {
@@ -44,5 +44,8 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "dependencies": {
+    "@anthropic-ai/claude-code": "^2.0.1"
+  }
 }

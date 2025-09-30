@@ -15,7 +15,10 @@ class GitTutorial {
         this.userProgress = this.loadProgress();
         this.startTime = Date.now();
         this.scrollTimeout = null; // For throttling scroll events
-        
+        this.searchIndex = []; // Cache for search content
+        this.searchDebounceTimeout = null;
+        this.selectedSearchResult = 0;
+
         this.initializeApp();
     }
 
@@ -23,6 +26,7 @@ class GitTutorial {
         this.setupEventListeners();
         this.setupTheme();
         this.updateProgressBar();
+        this.loadSearchIndex();
         this.showWelcome();
     }
 
@@ -56,6 +60,15 @@ class GitTutorial {
 
         // Scroll events for progress bar
         window.addEventListener('scroll', () => this.handleScroll());
+
+        // Search
+        document.getElementById('searchButton').addEventListener('click', () => this.openSearch());
+        document.getElementById('searchClose').addEventListener('click', () => this.closeSearch());
+        document.getElementById('searchBackdrop').addEventListener('click', () => this.closeSearch());
+        document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearchInput(e));
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
     }
     
     setupTheme() {
@@ -976,12 +989,269 @@ git merge feature/beta  # rerere should reapply your resolution
             border-radius: var(--radius-md);
             z-index: 1001;
         `;
-        
+
         document.body.appendChild(errorDiv);
-        
+
         setTimeout(() => {
             errorDiv.remove();
         }, 5000);
+    }
+
+    // Search functionality
+    async loadSearchIndex() {
+        // Load all lesson content into memory for searching
+        try {
+            const promises = this.lessons.map(async (lesson, index) => {
+                const response = await fetch(`tutorial/${lesson}`);
+                const markdown = await response.text();
+
+                // Parse content to extract searchable sections
+                const lines = markdown.split('\n');
+                const sections = [];
+                let currentSection = { heading: '', content: '', level: 0 };
+
+                lines.forEach(line => {
+                    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+                    if (headingMatch) {
+                        // Save previous section if it has content
+                        if (currentSection.content.trim()) {
+                            sections.push({...currentSection});
+                        }
+                        // Start new section
+                        currentSection = {
+                            heading: headingMatch[2],
+                            content: '',
+                            level: headingMatch[1].length
+                        };
+                    } else {
+                        currentSection.content += line + ' ';
+                    }
+                });
+
+                // Add last section
+                if (currentSection.content.trim()) {
+                    sections.push(currentSection);
+                }
+
+                return {
+                    lessonIndex: index,
+                    lessonFile: lesson,
+                    lessonTitle: this.getLessonTitle(index),
+                    fullContent: markdown,
+                    sections: sections
+                };
+            });
+
+            this.searchIndex = await Promise.all(promises);
+        } catch (error) {
+            console.error('Error loading search index:', error);
+        }
+    }
+
+    openSearch() {
+        const modal = document.getElementById('searchModal');
+        const input = document.getElementById('searchInput');
+        modal.style.display = 'block';
+        setTimeout(() => {
+            modal.classList.add('active');
+            input.focus();
+        }, 10);
+    }
+
+    closeSearch() {
+        const modal = document.getElementById('searchModal');
+        const input = document.getElementById('searchInput');
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            input.value = '';
+            this.showSearchEmpty();
+        }, 300);
+    }
+
+    handleSearchInput(e) {
+        const query = e.target.value.trim();
+
+        // Debounce search
+        if (this.searchDebounceTimeout) {
+            clearTimeout(this.searchDebounceTimeout);
+        }
+
+        if (!query) {
+            this.showSearchEmpty();
+            return;
+        }
+
+        this.searchDebounceTimeout = setTimeout(() => {
+            this.performSearch(query);
+        }, 300);
+    }
+
+    performSearch(query) {
+        const results = [];
+        const queryLower = query.toLowerCase();
+        const queryRegex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+
+        this.searchIndex.forEach(lesson => {
+            // Check lesson title
+            if (lesson.lessonTitle.toLowerCase().includes(queryLower)) {
+                results.push({
+                    lessonIndex: lesson.lessonIndex,
+                    lessonTitle: lesson.lessonTitle,
+                    matchType: 'title',
+                    heading: '',
+                    snippet: lesson.lessonTitle,
+                    score: 100
+                });
+            }
+
+            // Check sections
+            lesson.sections.forEach(section => {
+                const headingMatch = section.heading.toLowerCase().includes(queryLower);
+                const contentMatch = section.content.toLowerCase().includes(queryLower);
+
+                if (headingMatch || contentMatch) {
+                    // Create snippet with highlighted match
+                    let snippet = '';
+                    let score = 0;
+
+                    if (headingMatch) {
+                        snippet = section.heading;
+                        score = 80 - (section.level * 5); // Higher level headings score higher
+                    } else if (contentMatch) {
+                        // Extract snippet around match
+                        const matchIndex = section.content.toLowerCase().indexOf(queryLower);
+                        const start = Math.max(0, matchIndex - 50);
+                        const end = Math.min(section.content.length, matchIndex + query.length + 100);
+                        snippet = (start > 0 ? '...' : '') +
+                                  section.content.substring(start, end).trim() +
+                                  (end < section.content.length ? '...' : '');
+                        score = 50;
+                    }
+
+                    results.push({
+                        lessonIndex: lesson.lessonIndex,
+                        lessonTitle: lesson.lessonTitle,
+                        matchType: headingMatch ? 'heading' : 'content',
+                        heading: section.heading,
+                        snippet: snippet,
+                        score: score
+                    });
+                }
+            });
+        });
+
+        // Sort by score and limit results
+        results.sort((a, b) => b.score - a.score);
+        const topResults = results.slice(0, 10);
+
+        this.showSearchResults(topResults, queryRegex);
+    }
+
+    showSearchResults(results, queryRegex) {
+        const resultsContainer = document.getElementById('searchResults');
+        this.selectedSearchResult = 0;
+
+        if (results.length === 0) {
+            resultsContainer.innerHTML = `
+                <div class="search-no-results">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 38C30.3888 38 38 30.3888 38 21C38 11.6112 30.3888 4 21 4C11.6112 4 4 11.6112 4 21C4 30.3888 11.6112 38 21 38Z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M44 44L33.65 33.65" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p>No results found</p>
+                    <span>Try different keywords</span>
+                </div>
+            `;
+            return;
+        }
+
+        const highlightText = (text) => {
+            return text.replace(queryRegex, match => `<mark>${match}</mark>`);
+        };
+
+        resultsContainer.innerHTML = results.map((result, index) => `
+            <div class="search-result ${index === 0 ? 'selected' : ''}" data-lesson="${result.lessonIndex}" data-index="${index}">
+                <div class="search-result-lesson">Lesson ${result.lessonIndex + 1}: ${result.lessonTitle}</div>
+                ${result.heading ? `<div class="search-result-heading">${highlightText(result.heading)}</div>` : ''}
+                <div class="search-result-snippet">${highlightText(result.snippet)}</div>
+            </div>
+        `).join('');
+
+        // Add click handlers
+        resultsContainer.querySelectorAll('.search-result').forEach(el => {
+            el.addEventListener('click', () => {
+                const lessonIndex = parseInt(el.dataset.lesson);
+                this.closeSearch();
+                this.loadLesson(lessonIndex);
+            });
+        });
+    }
+
+    showSearchEmpty() {
+        const resultsContainer = document.getElementById('searchResults');
+        resultsContainer.innerHTML = `
+            <div class="search-empty">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 38C30.3888 38 38 30.3888 38 21C38 11.6112 30.3888 4 21 4C11.6112 4 4 11.6112 4 21C4 30.3888 11.6112 38 21 38Z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M44 44L33.65 33.65" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p>Start typing to search lessons</p>
+            </div>
+        `;
+    }
+
+    handleKeyboardShortcuts(e) {
+        // Ctrl+K or Cmd+K to open search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            this.openSearch();
+            return;
+        }
+
+        // Only handle other shortcuts when search modal is open
+        const modal = document.getElementById('searchModal');
+        if (modal.style.display !== 'block') {
+            return;
+        }
+
+        // Escape to close search
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            this.closeSearch();
+            return;
+        }
+
+        // Arrow key navigation
+        const results = document.querySelectorAll('.search-result');
+        if (results.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            this.selectedSearchResult = Math.min(this.selectedSearchResult + 1, results.length - 1);
+            this.updateSearchSelection(results);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            this.selectedSearchResult = Math.max(this.selectedSearchResult - 1, 0);
+            this.updateSearchSelection(results);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            const selected = results[this.selectedSearchResult];
+            if (selected) {
+                selected.click();
+            }
+        }
+    }
+
+    updateSearchSelection(results) {
+        results.forEach((result, index) => {
+            if (index === this.selectedSearchResult) {
+                result.classList.add('selected');
+                result.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            } else {
+                result.classList.remove('selected');
+            }
+        });
     }
 }
 
