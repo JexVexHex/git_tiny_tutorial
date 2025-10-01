@@ -28,6 +28,9 @@ class GitTutorial {
         this.updateProgressBar();
         this.loadSearchIndex();
         this.showWelcome();
+
+        // Make GitTutorial accessible globally for button click handler
+        window.gitTutorial = this;
     }
 
     setupEventListeners() {
@@ -62,10 +65,12 @@ class GitTutorial {
         window.addEventListener('scroll', () => this.handleScroll());
 
         // Search
-        document.getElementById('searchButton').addEventListener('click', () => this.openSearch());
         document.getElementById('searchClose').addEventListener('click', () => this.closeSearch());
-        document.getElementById('searchBackdrop').addEventListener('click', () => this.closeSearch());
         document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearchInput(e));
+
+        // Draggable search button and window
+        this.initDraggableSearchButton();
+        this.initDraggableSearch();
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
@@ -1048,25 +1053,128 @@ git merge feature/beta  # rerere should reapply your resolution
         }
     }
 
+    initDraggableSearchButton() {
+        const btn = document.getElementById('searchFloatBtn');
+        let isDragging = false;
+        let hasDragged = false;
+        let currentX, currentY, initialX, initialY;
+        let xOffset = 0, yOffset = 0;
+
+        // Restore saved position from localStorage
+        const savedPosition = localStorage.getItem('searchButtonPosition');
+        if (savedPosition) {
+            const { x, y } = JSON.parse(savedPosition);
+            xOffset = x;
+            yOffset = y;
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        const dragStart = (e) => {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+            isDragging = true;
+            hasDragged = false;
+        };
+
+        const drag = (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                hasDragged = true;
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                xOffset = currentX;
+                yOffset = currentY;
+                btn.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
+        };
+
+        const dragEnd = (e) => {
+            if (isDragging) {
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+
+                // Save position to localStorage
+                localStorage.setItem('searchButtonPosition', JSON.stringify({ x: xOffset, y: yOffset }));
+
+                // Only open search if button wasn't dragged
+                if (!hasDragged) {
+                    this.openSearch();
+                }
+            }
+        };
+
+        btn.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+    }
+
+    initDraggableSearch() {
+        const floatWindow = document.getElementById('searchFloat');
+        const header = document.getElementById('searchFloatHeader');
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        header.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+
+        function dragStart(e) {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+
+            if (e.target === header || header.contains(e.target)) {
+                isDragging = true;
+                floatWindow.style.transition = 'none';
+            }
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                xOffset = currentX;
+                yOffset = currentY;
+
+                floatWindow.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
+        }
+
+        function dragEnd(e) {
+            if (isDragging) {
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+                floatWindow.style.transition = '';
+            }
+        }
+    }
+
     openSearch() {
-        const modal = document.getElementById('searchModal');
+        const floatWindow = document.getElementById('searchFloat');
         const input = document.getElementById('searchInput');
-        modal.style.display = 'block';
-        setTimeout(() => {
-            modal.classList.add('active');
-            input.focus();
-        }, 10);
+        const btn = document.getElementById('searchFloatBtn');
+
+        floatWindow.classList.add('active');
+        btn.classList.add('hidden');
+        input.focus();
     }
 
     closeSearch() {
-        const modal = document.getElementById('searchModal');
+        const floatWindow = document.getElementById('searchFloat');
         const input = document.getElementById('searchInput');
-        modal.classList.remove('active');
-        setTimeout(() => {
-            modal.style.display = 'none';
-            input.value = '';
-            this.showSearchEmpty();
-        }, 300);
+        const btn = document.getElementById('searchFloatBtn');
+
+        floatWindow.classList.remove('active');
+        btn.classList.remove('hidden');
+        input.value = '';
+        this.showSearchEmpty();
     }
 
     handleSearchInput(e) {

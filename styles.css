@@ -940,111 +940,111 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .search-hint {
-        display: none;
-    }
-
-    .search-modal {
-        padding-top: 2rem;
-    }
-
-    .search-modal-content {
-        max-height: 85vh;
-    }
-
     .search-hints {
         flex-wrap: wrap;
         gap: 0.5rem;
     }
+
+    .search-float {
+        width: 95vw !important;
+        max-width: 95vw !important;
+    }
+
+    .search-float-content {
+        max-height: 70vh !important;
+    }
 }
 
-/* Search Styles */
-.search-control {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 1rem;
-}
-
-.search-button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--surface-color);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--radius-md);
-    font-family: var(--font-family);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.search-button:hover {
-    background: var(--background-color);
-    border-color: var(--primary-color);
-}
-
-.search-button svg {
-    color: var(--text-secondary);
-}
-
-.search-hint {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    padding: 0.125rem 0.375rem;
-    background: var(--background-color);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-color);
-}
-
-/* Search Modal */
-.search-modal {
+/* Floating Search Button */
+.search-float-btn {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 9999;
+    top: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    border: none;
+    cursor: move;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding-top: 10vh;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    z-index: 9998;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    color: white;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
-.search-modal.active {
+.search-float-btn.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.search-float-btn:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.search-float-btn:active {
+    transform: scale(0.95);
+}
+
+/* Floating Search Window */
+.search-float {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    width: 500px;
+    max-width: 90vw;
+    background: var(--background-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.search-float.active {
     opacity: 1;
 }
 
-.search-modal-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+.search-float-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    cursor: move;
+    user-select: none;
 }
 
-.search-modal-content {
-    position: relative;
-    width: 90%;
-    max-width: 600px;
-    background: var(--background-color);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border-color);
+.search-float-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.search-float-title svg {
+    color: var(--primary-color);
+}
+
+.search-float-content {
     display: flex;
     flex-direction: column;
     max-height: 70vh;
     transform: translateY(-20px);
     transition: transform 0.3s ease;
-}
-
-.search-modal.active .search-modal-content {
-    transform: translateY(0);
 }
 
 /* Search Input */
