@@ -1,0 +1,20 @@
+inject.js:22 pageshow:  PageTransitionEvent {isTrusted: true, persisted: false, type: 'pageshow', target: document, currentTarget: Window, …}
+(index):1 Unchecked runtime.lastError: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+(index):1 Unchecked runtime.lastError: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+script.js:1099 dragEnd fired {isDragging: false, hasDragged: false}
+script.js:1075 dragStart fired {isDragging: false, hasDragged: false, hasHidden: false}
+script.js:1099 dragEnd fired {isDragging: true, hasDragged: true}
+script.js:1075 dragStart fired {isDragging: false, hasDragged: true, hasHidden: false}
+script.js:1099 dragEnd fired {isDragging: true, hasDragged: false}
+script.js:1110 Opening search...
+script.js:1099 dragEnd fired {isDragging: false, hasDragged: false}
+script.js:1099 dragEnd fired {isDragging: false, hasDragged: false}
+script.js:1099 dragEnd fired {isDragging: false, hasDragged: false}
+script.js:1075 dragStart fired {isDragging: false, hasDragged: false, hasHidden: false}
+script.js:1099 dragEnd fired {isDragging: true, hasDragged: true}
+script.js:1099 dragEnd fired {isDragging: false, hasDragged: true}
+script.js:1099 dragEnd fired {isDragging: false, hasDragged: true}
+script.js:1099 dragEnd fired {isDragging: false, hasDragged: true}
+script.js:1099 dragEnd fired {isDragging: false, hasDragged: true}
+script.js:1099 dragEnd fired {isDragging: false, hasDragged: true}
+script.js:1099 dragEnd fired {isDragging: false, hasDragged: true}

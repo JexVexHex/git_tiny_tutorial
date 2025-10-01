@@ -1055,6 +1055,8 @@ git merge feature/beta  # rerere should reapply your resolution
 
     initDraggableSearchButton() {
         const btn = document.getElementById('searchFloatBtn');
+        if (!btn) return;
+
         let isDragging = false;
         let hasDragged = false;
         let currentX, currentY, initialX, initialY;
@@ -1070,15 +1072,22 @@ git merge feature/beta  # rerere should reapply your resolution
         }
 
         const dragStart = (e) => {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            // Reset state for new interaction
+            hasDragged = false;
+            isDragging = true;
+
             initialX = e.clientX - xOffset;
             initialY = e.clientY - yOffset;
-            isDragging = true;
-            hasDragged = false;
         };
 
         const drag = (e) => {
             if (isDragging) {
                 e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
                 hasDragged = true;
                 currentX = e.clientX - initialX;
                 currentY = e.clientY - initialY;
@@ -1089,9 +1098,9 @@ git merge feature/beta  # rerere should reapply your resolution
         };
 
         const dragEnd = (e) => {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
             if (isDragging) {
-                initialX = currentX;
-                initialY = currentY;
                 isDragging = false;
 
                 // Save position to localStorage
@@ -1104,9 +1113,9 @@ git merge feature/beta  # rerere should reapply your resolution
             }
         };
 
-        btn.addEventListener('mousedown', dragStart);
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', dragEnd);
+        btn.addEventListener('mousedown', dragStart, true);
+        document.addEventListener('mousemove', drag, true);
+        document.addEventListener('mouseup', dragEnd, true);
     }
 
     initDraggableSearch() {
@@ -1317,9 +1326,9 @@ git merge feature/beta  # rerere should reapply your resolution
             return;
         }
 
-        // Only handle other shortcuts when search modal is open
-        const modal = document.getElementById('searchModal');
-        if (modal.style.display !== 'block') {
+        // Only handle other shortcuts when search is open
+        const searchFloat = document.getElementById('searchFloat');
+        if (!searchFloat.classList.contains('active')) {
             return;
         }
 
