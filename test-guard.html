@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Button Guard Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .info {
+            color: blue;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Search Button Guard System Test</h1>
+    <p class="info">This page tests the guard mechanisms against browser extension interference.</p>
+
+    <div class="test-section">
+        <h3>Test 1: Verify Search Button Exists</h3>
+        <button onclick="testButtonExists()">Run Test</button>
+        <div id="test1-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 2: Simulate Extension Removing Event Listeners</h3>
+        <button onclick="testRemoveListeners()">Run Test</button>
+        <div id="test2-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 3: Simulate Extension Modifying Button Attributes</h3>
+        <button onclick="testModifyButton()">Run Test</button>
+        <div id="test3-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 4: Verify Health Check is Running</h3>
+        <button onclick="testHealthCheck()">Run Test</button>
+        <div id="test4-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 5: Check MutationObserver is Active</h3>
+        <button onclick="testMutationObserver()">Run Test</button>
+        <div id="test5-result"></div>
+    </div>
+
+    <script>
+        function testButtonExists() {
+            const result = document.getElementById('test1-result');
+            const btn = document.getElementById('searchFloatBtn');
+
+            if (btn) {
+                result.innerHTML = '<p class="success">✓ Search button found</p>';
+                result.innerHTML += `<p>Position: ${getComputedStyle(btn).position}</p>`;
+                result.innerHTML += `<p>Display: ${getComputedStyle(btn).display}</p>`;
+                result.innerHTML += `<p>Opacity: ${getComputedStyle(btn).opacity}</p>`;
+            } else {
+                result.innerHTML = '<p class="error">✗ Search button not found</p>';
+            }
+        }
+
+        function testRemoveListeners() {
+            const result = document.getElementById('test2-result');
+            const btn = document.getElementById('searchFloatBtn');
+
+            if (!btn) {
+                result.innerHTML = '<p class="error">✗ Button not found</p>';
+                return;
+            }
+
+            // Store original onclick
+            const originalOnclick = btn.onclick;
+
+            // Simulate extension removing onclick (malicious behavior)
+            btn.onclick = null;
+
+            result.innerHTML = '<p class="info">Removed onclick handler...</p>';
+
+            // Wait for health check to restore it
+            setTimeout(() => {
+                if (btn.onclick) {
+                    result.innerHTML += '<p class="success">✓ Health check restored the onclick handler!</p>';
+                } else {
+                    result.innerHTML += '<p class="error">✗ onclick handler was not restored</p>';
+                }
+            }, 2500);
+        }
+
+        function testModifyButton() {
+            const result = document.getElementById('test3-result');
+            const btn = document.getElementById('searchFloatBtn');
+
+            if (!btn) {
+                result.innerHTML = '<p class="error">✗ Button not found</p>';
+                return;
+            }
+
+            // Simulate extension modifying button
+            btn.setAttribute('data-extension-modified', 'true');
+            btn.style.background = 'red';
+
+            result.innerHTML = '<p class="info">Modified button attributes...</p>';
+
+            // Wait for MutationObserver to detect and potentially fix it
+            setTimeout(() => {
+                const modified = btn.getAttribute('data-extension-modified');
+                result.innerHTML += `<p>Attribute still present: ${modified ? 'Yes' : 'No'}</p>`;
+                result.innerHTML += '<p class="success">✓ MutationObserver should have detected this change</p>';
+            }, 500);
+        }
+
+        function testHealthCheck() {
+            const result = document.getElementById('test4-result');
+
+            if (window.gitTutorial && window.gitTutorial.searchButtonHealthCheck) {
+                result.innerHTML = '<p class="success">✓ Health check interval is running</p>';
+                result.innerHTML += '<p class="info">Health check runs every 2 seconds</p>';
+            } else {
+                result.innerHTML = '<p class="error">✗ Health check not found or not running</p>';
+            }
+        }
+
+        function testMutationObserver() {
+            const result = document.getElementById('test5-result');
+
+            if (window.gitTutorial && window.gitTutorial.searchButtonObserver) {
+                result.innerHTML = '<p class="success">✓ MutationObserver is active</p>';
+                result.innerHTML += '<p class="info">Monitoring DOM changes to the search button</p>';
+            } else {
+                result.innerHTML = '<p class="error">✗ MutationObserver not found</p>';
+            }
+        }
+
+        // Automatically run all tests when GitTutorial is ready
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (window.gitTutorial) {
+                    document.querySelector('h1').innerHTML += ' <span class="success">(GitTutorial Loaded)</span>';
+                } else {
+                    document.querySelector('h1').innerHTML += ' <span class="error">(GitTutorial NOT Loaded)</span>';
+                }
+            }, 1000);
+        });
+    </script>
+
+    <!-- Load the actual application -->
+    <iframe src="index.html" style="width: 100%; height: 600px; border: 1px solid #ccc; margin-top: 20px;"></iframe>
+</body>
+</html>

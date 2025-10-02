@@ -19,6 +19,11 @@ class GitTutorial {
         this.searchDebounceTimeout = null;
         this.selectedSearchResult = 0;
 
+        // Guard system references (for cleanup)
+        this.searchButtonObserver = null;
+        this.searchWindowObserver = null;
+        this.searchButtonHealthCheck = null;
+
         this.initializeApp();
     }
 
@@ -1057,133 +1062,477 @@ git merge feature/beta  # rerere should reapply your resolution
         const btn = document.getElementById('searchFloatBtn');
         if (!btn) return;
 
-        let isDragging = false;
-        let hasDragged = false;
-        let currentX, currentY, initialX, initialY;
-        let xOffset = 0, yOffset = 0;
+        // Protected state storage - frozen to prevent external modification
+        const protectedState = Object.seal({
+            isDragging: false,
+            hasDragged: false,
+            currentX: 0,
+            currentY: 0,
+            initialX: 0,
+            initialY: 0,
+            xOffset: 0,
+            yOffset: 0,
+            lastInteraction: Date.now()
+        });
 
         // Restore saved position from localStorage
-        const savedPosition = localStorage.getItem('searchButtonPosition');
-        if (savedPosition) {
-            const { x, y } = JSON.parse(savedPosition);
-            xOffset = x;
-            yOffset = y;
-            btn.style.transform = `translate(${x}px, ${y}px)`;
+        try {
+            const savedPosition = localStorage.getItem('searchButtonPosition');
+            if (savedPosition) {
+                const { x, y } = JSON.parse(savedPosition);
+                protectedState.xOffset = x;
+                protectedState.yOffset = y;
+                btn.style.transform = `translate(${x}px, ${y}px)`;
+            }
+        } catch (e) {
+            console.warn('Could not restore button position:', e);
         }
 
+        // Event handlers with extension interference protection
         const dragStart = (e) => {
-            e.stopPropagation();
-            e.stopImmediatePropagation();
+            try {
+                // Multiple stop mechanisms for robustness
+                if (e && e.stopPropagation) e.stopPropagation();
+                if (e && e.stopImmediatePropagation) e.stopImmediatePropagation();
 
-            // Reset state for new interaction
-            hasDragged = false;
-            isDragging = true;
+                protectedState.hasDragged = false;
+                protectedState.isDragging = true;
+                protectedState.lastInteraction = Date.now();
 
-            initialX = e.clientX - xOffset;
-            initialY = e.clientY - yOffset;
+                protectedState.initialX = (e.clientX || 0) - protectedState.xOffset;
+                protectedState.initialY = (e.clientY || 0) - protectedState.yOffset;
+            } catch (err) {
+                console.warn('Error in dragStart:', err);
+            }
         };
 
         const drag = (e) => {
-            if (isDragging) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                hasDragged = true;
-                currentX = e.clientX - initialX;
-                currentY = e.clientY - initialY;
-                xOffset = currentX;
-                yOffset = currentY;
-                btn.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            try {
+                if (protectedState.isDragging) {
+                    if (e && e.preventDefault) e.preventDefault();
+                    if (e && e.stopPropagation) e.stopPropagation();
+                    if (e && e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+                    protectedState.hasDragged = true;
+                    protectedState.currentX = (e.clientX || 0) - protectedState.initialX;
+                    protectedState.currentY = (e.clientY || 0) - protectedState.initialY;
+                    protectedState.xOffset = protectedState.currentX;
+                    protectedState.yOffset = protectedState.currentY;
+
+                    if (btn && btn.style) {
+                        btn.style.transform = `translate(${protectedState.currentX}px, ${protectedState.currentY}px)`;
+                    }
+                }
+            } catch (err) {
+                console.warn('Error in drag:', err);
             }
         };
 
         const dragEnd = (e) => {
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            if (isDragging) {
-                isDragging = false;
+            try {
+                if (e && e.stopPropagation) e.stopPropagation();
+                if (e && e.stopImmediatePropagation) e.stopImmediatePropagation();
 
-                // Save position to localStorage
-                localStorage.setItem('searchButtonPosition', JSON.stringify({ x: xOffset, y: yOffset }));
+                if (protectedState.isDragging) {
+                    protectedState.isDragging = false;
 
-                // Only open search if button wasn't dragged
-                if (!hasDragged) {
-                    this.openSearch();
+                    // Save position to localStorage
+                    try {
+                        localStorage.setItem('searchButtonPosition', JSON.stringify({
+                            x: protectedState.xOffset,
+                            y: protectedState.yOffset
+                        }));
+                    } catch (storageErr) {
+                        console.warn('Could not save position:', storageErr);
+                    }
+
+                    // Only open search if button wasn't dragged
+                    if (!protectedState.hasDragged) {
+                        this.openSearch();
+                    }
                 }
+            } catch (err) {
+                console.warn('Error in dragEnd:', err);
             }
         };
 
-        btn.addEventListener('mousedown', dragStart, true);
-        document.addEventListener('mousemove', drag, true);
-        document.addEventListener('mouseup', dragEnd, true);
+        // Store handlers for health checks
+        const handlers = Object.freeze({
+            dragStart,
+            drag,
+            dragEnd
+        });
+
+        // Attach event listeners with both capture and bubble phases
+        const attachListeners = () => {
+            try {
+                // Remove old listeners first to prevent duplicates
+                btn.removeEventListener('mousedown', handlers.dragStart, true);
+                btn.removeEventListener('mousedown', handlers.dragStart, false);
+                document.removeEventListener('mousemove', handlers.drag, true);
+                document.removeEventListener('mousemove', handlers.drag, false);
+                document.removeEventListener('mouseup', handlers.dragEnd, true);
+                document.removeEventListener('mouseup', handlers.dragEnd, false);
+
+                // Attach in capture phase (priority)
+                btn.addEventListener('mousedown', handlers.dragStart, true);
+                document.addEventListener('mousemove', handlers.drag, true);
+                document.addEventListener('mouseup', handlers.dragEnd, true);
+
+                // Also attach in bubble phase as fallback
+                btn.addEventListener('mousedown', handlers.dragStart, false);
+                document.addEventListener('mousemove', handlers.drag, false);
+                document.addEventListener('mouseup', handlers.dragEnd, false);
+
+                // Add direct onclick as ultimate fallback (only triggers if not dragged)
+                btn.onclick = (e) => {
+                    const timeSinceInteraction = Date.now() - protectedState.lastInteraction;
+                    // If no drag interaction in last 100ms, treat as click
+                    if (timeSinceInteraction < 100 && !protectedState.hasDragged) {
+                        this.openSearch();
+                    }
+                };
+            } catch (err) {
+                console.warn('Error attaching listeners:', err);
+            }
+        };
+
+        // Initial attachment
+        attachListeners();
+
+        // MutationObserver to detect DOM tampering
+        try {
+            const observer = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    if (mutation.type === 'attributes' || mutation.type === 'childList') {
+                        // Re-attach listeners if button was modified
+                        attachListeners();
+                        break;
+                    }
+                }
+            });
+
+            observer.observe(btn, {
+                attributes: true,
+                childList: true,
+                characterData: false
+            });
+
+            // Store observer reference for cleanup
+            this.searchButtonObserver = observer;
+        } catch (err) {
+            console.warn('MutationObserver not available:', err);
+        }
+
+        // Periodic health check - verify listeners are working
+        const healthCheck = setInterval(() => {
+            try {
+                const currentBtn = document.getElementById('searchFloatBtn');
+                if (!currentBtn) {
+                    clearInterval(healthCheck);
+                    return;
+                }
+
+                // Verify button is still responsive by checking if onclick exists
+                if (!currentBtn.onclick) {
+                    console.warn('Search button listeners may have been removed, re-attaching...');
+                    attachListeners();
+                }
+            } catch (err) {
+                console.warn('Health check error:', err);
+            }
+        }, 2000); // Check every 2 seconds
+
+        // Store health check reference for cleanup
+        this.searchButtonHealthCheck = healthCheck;
+
+        // Add touchscreen support with same protection
+        const touchStart = (e) => {
+            if (e.touches && e.touches[0]) {
+                const touch = e.touches[0];
+                dragStart({
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    stopPropagation: () => e.stopPropagation?.(),
+                    stopImmediatePropagation: () => e.stopImmediatePropagation?.(),
+                    preventDefault: () => e.preventDefault?.()
+                });
+            }
+        };
+
+        const touchMove = (e) => {
+            if (e.touches && e.touches[0]) {
+                const touch = e.touches[0];
+                drag({
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    stopPropagation: () => e.stopPropagation?.(),
+                    stopImmediatePropagation: () => e.stopImmediatePropagation?.(),
+                    preventDefault: () => e.preventDefault?.()
+                });
+            }
+        };
+
+        const touchEnd = (e) => {
+            dragEnd({
+                stopPropagation: () => e.stopPropagation?.(),
+                stopImmediatePropagation: () => e.stopImmediatePropagation?.()
+            });
+        };
+
+        // Attach touch listeners
+        try {
+            btn.addEventListener('touchstart', touchStart, { passive: false, capture: true });
+            document.addEventListener('touchmove', touchMove, { passive: false, capture: true });
+            document.addEventListener('touchend', touchEnd, { passive: false, capture: true });
+        } catch (err) {
+            console.warn('Could not attach touch listeners:', err);
+        }
     }
 
     initDraggableSearch() {
         const floatWindow = document.getElementById('searchFloat');
         const header = document.getElementById('searchFloatHeader');
-        let isDragging = false;
-        let currentX;
-        let currentY;
-        let initialX;
-        let initialY;
-        let xOffset = 0;
-        let yOffset = 0;
 
-        header.addEventListener('mousedown', dragStart);
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', dragEnd);
+        if (!floatWindow || !header) return;
 
-        function dragStart(e) {
-            initialX = e.clientX - xOffset;
-            initialY = e.clientY - yOffset;
+        // Protected state storage
+        const protectedState = Object.seal({
+            isDragging: false,
+            currentX: 0,
+            currentY: 0,
+            initialX: 0,
+            initialY: 0,
+            xOffset: 0,
+            yOffset: 0
+        });
 
-            if (e.target === header || header.contains(e.target)) {
-                isDragging = true;
-                floatWindow.style.transition = 'none';
+        // Event handlers with extension interference protection
+        const dragStart = (e) => {
+            try {
+                protectedState.initialX = (e.clientX || 0) - protectedState.xOffset;
+                protectedState.initialY = (e.clientY || 0) - protectedState.yOffset;
+
+                if (e.target === header || header.contains(e.target)) {
+                    protectedState.isDragging = true;
+                    if (floatWindow && floatWindow.style) {
+                        floatWindow.style.transition = 'none';
+                    }
+                }
+            } catch (err) {
+                console.warn('Error in search window dragStart:', err);
             }
+        };
+
+        const drag = (e) => {
+            try {
+                if (protectedState.isDragging) {
+                    if (e && e.preventDefault) e.preventDefault();
+
+                    protectedState.currentX = (e.clientX || 0) - protectedState.initialX;
+                    protectedState.currentY = (e.clientY || 0) - protectedState.initialY;
+                    protectedState.xOffset = protectedState.currentX;
+                    protectedState.yOffset = protectedState.currentY;
+
+                    if (floatWindow && floatWindow.style) {
+                        floatWindow.style.transform = `translate(${protectedState.currentX}px, ${protectedState.currentY}px)`;
+                    }
+                }
+            } catch (err) {
+                console.warn('Error in search window drag:', err);
+            }
+        };
+
+        const dragEnd = (e) => {
+            try {
+                if (protectedState.isDragging) {
+                    protectedState.initialX = protectedState.currentX;
+                    protectedState.initialY = protectedState.currentY;
+                    protectedState.isDragging = false;
+                    if (floatWindow && floatWindow.style) {
+                        floatWindow.style.transition = '';
+                    }
+                }
+            } catch (err) {
+                console.warn('Error in search window dragEnd:', err);
+            }
+        };
+
+        // Store handlers for re-attachment
+        const handlers = Object.freeze({
+            dragStart,
+            drag,
+            dragEnd
+        });
+
+        // Attach event listeners with protection
+        const attachListeners = () => {
+            try {
+                // Remove old listeners first
+                header.removeEventListener('mousedown', handlers.dragStart, true);
+                header.removeEventListener('mousedown', handlers.dragStart, false);
+                document.removeEventListener('mousemove', handlers.drag, true);
+                document.removeEventListener('mousemove', handlers.drag, false);
+                document.removeEventListener('mouseup', handlers.dragEnd, true);
+                document.removeEventListener('mouseup', handlers.dragEnd, false);
+
+                // Attach in both capture and bubble phases
+                header.addEventListener('mousedown', handlers.dragStart, true);
+                document.addEventListener('mousemove', handlers.drag, true);
+                document.addEventListener('mouseup', handlers.dragEnd, true);
+
+                header.addEventListener('mousedown', handlers.dragStart, false);
+                document.addEventListener('mousemove', handlers.drag, false);
+                document.addEventListener('mouseup', handlers.dragEnd, false);
+            } catch (err) {
+                console.warn('Error attaching search window listeners:', err);
+            }
+        };
+
+        // Initial attachment
+        attachListeners();
+
+        // MutationObserver for DOM tampering detection
+        try {
+            const observer = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    if (mutation.type === 'attributes' || mutation.type === 'childList') {
+                        attachListeners();
+                        break;
+                    }
+                }
+            });
+
+            observer.observe(header, {
+                attributes: true,
+                childList: true,
+                characterData: false
+            });
+
+            this.searchWindowObserver = observer;
+        } catch (err) {
+            console.warn('MutationObserver not available for search window:', err);
         }
 
-        function drag(e) {
-            if (isDragging) {
-                e.preventDefault();
-                currentX = e.clientX - initialX;
-                currentY = e.clientY - initialY;
-                xOffset = currentX;
-                yOffset = currentY;
-
-                floatWindow.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        // Add touchscreen support
+        const touchStart = (e) => {
+            if (e.touches && e.touches[0]) {
+                const touch = e.touches[0];
+                dragStart({
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    target: e.target,
+                    preventDefault: () => e.preventDefault?.()
+                });
             }
-        }
+        };
 
-        function dragEnd(e) {
-            if (isDragging) {
-                initialX = currentX;
-                initialY = currentY;
-                isDragging = false;
-                floatWindow.style.transition = '';
+        const touchMove = (e) => {
+            if (e.touches && e.touches[0]) {
+                const touch = e.touches[0];
+                drag({
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    preventDefault: () => e.preventDefault?.()
+                });
             }
+        };
+
+        const touchEnd = (e) => {
+            dragEnd({});
+        };
+
+        try {
+            header.addEventListener('touchstart', touchStart, { passive: false, capture: true });
+            document.addEventListener('touchmove', touchMove, { passive: false, capture: true });
+            document.addEventListener('touchend', touchEnd, { passive: false, capture: true });
+        } catch (err) {
+            console.warn('Could not attach touch listeners to search window:', err);
         }
     }
 
     openSearch() {
-        const floatWindow = document.getElementById('searchFloat');
-        const input = document.getElementById('searchInput');
-        const btn = document.getElementById('searchFloatBtn');
+        try {
+            const floatWindow = document.getElementById('searchFloat');
+            const input = document.getElementById('searchInput');
+            const btn = document.getElementById('searchFloatBtn');
 
-        floatWindow.classList.add('active');
-        btn.classList.add('hidden');
-        input.focus();
+            if (!floatWindow || !input || !btn) {
+                console.warn('Search elements not found');
+                return;
+            }
+
+            // Use multiple methods to ensure visibility
+            if (floatWindow.classList) {
+                floatWindow.classList.add('active');
+            } else {
+                floatWindow.className += ' active';
+            }
+
+            if (btn.classList) {
+                btn.classList.add('hidden');
+            } else {
+                btn.className += ' hidden';
+            }
+
+            // Try to focus with error handling
+            try {
+                if (input.focus) input.focus();
+            } catch (focusErr) {
+                // Focus might be blocked by browser, that's okay
+                console.warn('Could not focus search input:', focusErr);
+            }
+
+            // Ensure search window is visible (fallback)
+            setTimeout(() => {
+                if (floatWindow && !floatWindow.classList.contains('active')) {
+                    floatWindow.classList.add('active');
+                }
+            }, 100);
+        } catch (err) {
+            console.warn('Error opening search:', err);
+        }
     }
 
     closeSearch() {
-        const floatWindow = document.getElementById('searchFloat');
-        const input = document.getElementById('searchInput');
-        const btn = document.getElementById('searchFloatBtn');
+        try {
+            const floatWindow = document.getElementById('searchFloat');
+            const input = document.getElementById('searchInput');
+            const btn = document.getElementById('searchFloatBtn');
 
-        floatWindow.classList.remove('active');
-        btn.classList.remove('hidden');
-        input.value = '';
-        this.showSearchEmpty();
+            if (!floatWindow || !input || !btn) {
+                console.warn('Search elements not found');
+                return;
+            }
+
+            // Use multiple methods to ensure proper state
+            if (floatWindow.classList) {
+                floatWindow.classList.remove('active');
+            } else {
+                floatWindow.className = floatWindow.className.replace(/\bactive\b/g, '');
+            }
+
+            if (btn.classList) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.className = btn.className.replace(/\bhidden\b/g, '');
+            }
+
+            if (input.value !== undefined) {
+                input.value = '';
+            }
+
+            this.showSearchEmpty();
+
+            // Ensure button is visible (fallback)
+            setTimeout(() => {
+                if (btn && btn.classList.contains('hidden')) {
+                    btn.classList.remove('hidden');
+                }
+            }, 100);
+        } catch (err) {
+            console.warn('Error closing search:', err);
+        }
     }
 
     handleSearchInput(e) {
@@ -1369,6 +1718,43 @@ git merge feature/beta  # rerere should reapply your resolution
                 result.classList.remove('selected');
             }
         });
+    }
+
+    // Cleanup method to properly dispose of observers and intervals
+    cleanup() {
+        try {
+            // Clear health check interval
+            if (this.searchButtonHealthCheck) {
+                clearInterval(this.searchButtonHealthCheck);
+                this.searchButtonHealthCheck = null;
+            }
+
+            // Disconnect MutationObservers
+            if (this.searchButtonObserver) {
+                this.searchButtonObserver.disconnect();
+                this.searchButtonObserver = null;
+            }
+
+            if (this.searchWindowObserver) {
+                this.searchWindowObserver.disconnect();
+                this.searchWindowObserver = null;
+            }
+
+            // Clear any pending timeouts
+            if (this.scrollTimeout) {
+                clearTimeout(this.scrollTimeout);
+                this.scrollTimeout = null;
+            }
+
+            if (this.searchDebounceTimeout) {
+                clearTimeout(this.searchDebounceTimeout);
+                this.searchDebounceTimeout = null;
+            }
+
+            console.log('GitTutorial cleanup completed');
+        } catch (err) {
+            console.warn('Error during cleanup:', err);
+        }
     }
 }
 
