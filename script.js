@@ -950,7 +950,7 @@ git merge feature/beta  # rerere should reapply your resolution
             
             // Update progress bar to reflect scroll position
             progressFill.style.width = `${scrollProgress}%`;
-            progressText.textContent = `${Math.round(scrollProgress)}% Scrolled`;
+            progressText.textContent = `${Math.round(scrollProgress)}% `;
         }, 10); // 10ms throttle for smooth updates
     }
     
