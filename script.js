@@ -24,6 +24,9 @@ class GitTutorial {
         this.searchWindowObserver = null;
         this.searchButtonHealthCheck = null;
 
+        // Configure marked.js renderer to add IDs to headings
+        this.configureMarkdownRenderer();
+
         this.initializeApp();
     }
 
@@ -36,6 +39,24 @@ class GitTutorial {
 
         // Make GitTutorial accessible globally for button click handler
         window.gitTutorial = this;
+    }
+
+    configureMarkdownRenderer() {
+        // Configure marked.js to automatically add IDs to headings
+        const renderer = new marked.Renderer();
+        const slugifyFunc = this.slugify.bind(this);
+
+        // Use marked.js v4.3.0 API with (text, level, raw) signature
+        renderer.heading = function(text, level, raw) {
+            const id = slugifyFunc(raw);
+            return `<h${level} id="${id}">${text}</h${level}>\n`;
+        };
+
+        marked.setOptions({
+            renderer: renderer,
+            breaks: true,
+            gfm: true
+        });
     }
 
     setupEventListeners() {
@@ -613,42 +634,46 @@ git merge feature/beta  # rerere should reapply your resolution
         this.loadLesson(0);
     }
 
-    async loadLesson(lessonIndex) {
+    async loadLesson(lessonIndex, targetHeadingId = null) {
         if (lessonIndex < 0 || lessonIndex >= this.lessons.length) return;
-        
+
         this.currentLesson = lessonIndex;
         this.updateNavigation();
-        
+
         try {
             const response = await fetch(`tutorial/${this.lessons[lessonIndex]}`);
             const markdown = await response.text();
-            
+
             // Convert markdown to HTML
             const html = marked.parse(markdown);
-            
+
             // Update lesson content
             document.getElementById('lessonTitle').textContent = this.getLessonTitle(lessonIndex);
             document.getElementById('lessonNumber').textContent = `Lesson ${lessonIndex + 1}`;
             document.getElementById('lessonBody').innerHTML = html;
-            
+
             // Show lesson content
             document.getElementById('welcome').style.display = 'none';
             document.getElementById('lesson-content').style.display = 'block';
             document.getElementById('completion').style.display = 'none';
-            
-            // Scroll to top when loading a lesson
-            this.scrollToTop(true);
-            
+
+            // Scroll to target heading if provided, otherwise scroll to top
+            if (targetHeadingId) {
+                this.scrollToHeading(targetHeadingId);
+            } else {
+                this.scrollToTop(true);
+            }
+
             // Update progress
             this.updateProgressBar();
-            
+
             // Initialize quiz and exercise
             this.initializeQuiz();
             this.initializeExercise();
-            
+
             // Animate content
             this.animateContent();
-            
+
         } catch (error) {
             console.error('Error loading lesson:', error);
             this.showError('Failed to load lesson. Please try again.');
@@ -665,6 +690,16 @@ git merge feature/beta  # rerere should reapply your resolution
             'Git Merge Mastery - Orchestrating Histories'
         ];
         return titles[lessonIndex] || 'Lesson';
+    }
+
+    slugify(text) {
+        // Convert heading text to URL-friendly ID
+        return text
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, '') // Remove special characters
+            .replace(/[\s_]+/g, '-')   // Replace spaces and underscores with hyphens
+            .replace(/^-+|-+$/g, '');  // Remove leading/trailing hyphens
     }
 
     initializeQuiz() {
@@ -950,6 +985,46 @@ git merge feature/beta  # rerere should reapply your resolution
         }
     }
 
+    scrollToHeading(headingId) {
+        try {
+            // Wait for DOM to be fully updated - use requestAnimationFrame
+            setTimeout(() => {
+                requestAnimationFrame(() => {
+                    const targetElement = document.getElementById(headingId);
+
+                    if (targetElement) {
+                        // Calculate offset to account for fixed elements (if any)
+                        const offset = 80;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                        // Scroll to the target position
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+
+                        // Add highlight animation to make the section stand out
+                        targetElement.style.transition = 'background-color 0.15s ease-in';
+                        targetElement.style.backgroundColor = 'var(--primary-light, rgba(99, 102, 241, 0.15))';
+
+                        // Remove highlight after 1 second with faster fade-out
+                        setTimeout(() => {
+                            targetElement.style.transition = 'background-color 0.3s ease-out';
+                            targetElement.style.backgroundColor = 'transparent';
+                        }, 1000);
+                    } else {
+                        // Fallback to top if heading not found
+                        this.scrollToTop(true);
+                    }
+                });
+            }, 200);
+        } catch (e) {
+            console.warn('Error scrolling to heading:', e);
+            this.scrollToTop(true);
+        }
+    }
+
     animateContent() {
         const elements = document.querySelectorAll('.lesson-content > *');
         elements.forEach((element, index) => {
@@ -1019,8 +1094,22 @@ git merge feature/beta  # rerere should reapply your resolution
                 const lines = markdown.split('\n');
                 const sections = [];
                 let currentSection = { heading: '', content: '', level: 0 };
+                let inCodeBlock = false;
 
                 lines.forEach(line => {
+                    // Track code block boundaries
+                    if (line.trim().startsWith('```')) {
+                        inCodeBlock = !inCodeBlock;
+                        currentSection.content += line + ' ';
+                        return;
+                    }
+
+                    // Skip heading detection inside code blocks
+                    if (inCodeBlock) {
+                        currentSection.content += line + ' ';
+                        return;
+                    }
+
                     const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
                     if (headingMatch) {
                         // Save previous section if it has content
@@ -1566,6 +1655,7 @@ git merge feature/beta  # rerere should reapply your resolution
                     lessonTitle: lesson.lessonTitle,
                     matchType: 'title',
                     heading: '',
+                    headingId: '',
                     snippet: lesson.lessonTitle,
                     score: 100
                 });
@@ -1600,6 +1690,7 @@ git merge feature/beta  # rerere should reapply your resolution
                         lessonTitle: lesson.lessonTitle,
                         matchType: headingMatch ? 'heading' : 'content',
                         heading: section.heading,
+                        headingId: section.heading ? this.slugify(section.heading) : '',
                         snippet: snippet,
                         score: score
                     });
@@ -1637,7 +1728,7 @@ git merge feature/beta  # rerere should reapply your resolution
         };
 
         resultsContainer.innerHTML = results.map((result, index) => `
-            <div class="search-result ${index === 0 ? 'selected' : ''}" data-lesson="${result.lessonIndex}" data-index="${index}">
+            <div class="search-result ${index === 0 ? 'selected' : ''}" data-lesson="${result.lessonIndex}" data-heading-id="${result.headingId || ''}" data-index="${index}">
                 <div class="search-result-lesson">Lesson ${result.lessonIndex + 1}: ${result.lessonTitle}</div>
                 ${result.heading ? `<div class="search-result-heading">${highlightText(result.heading)}</div>` : ''}
                 <div class="search-result-snippet">${highlightText(result.snippet)}</div>
@@ -1648,8 +1739,9 @@ git merge feature/beta  # rerere should reapply your resolution
         resultsContainer.querySelectorAll('.search-result').forEach(el => {
             el.addEventListener('click', () => {
                 const lessonIndex = parseInt(el.dataset.lesson);
+                const headingId = el.dataset.headingId;
                 this.closeSearch();
-                this.loadLesson(lessonIndex);
+                this.loadLesson(lessonIndex, headingId);
             });
         });
     }
