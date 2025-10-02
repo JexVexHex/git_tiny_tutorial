@@ -14,6 +14,7 @@ A **branch** is a movable pointer to a specific commit. Think of branches as par
 ## Branch Basics
 
 ### Creating Branches
+
 ```bash
 # Create a new branch
 git branch feature-branch
@@ -26,6 +27,7 @@ git switch -c feature-branch
 ```
 
 ### Switching Branches
+
 ```bash
 # Switch to an existing branch
 git checkout branch-name
@@ -38,6 +40,7 @@ git switch -
 ```
 
 ### Listing Branches
+
 ```bash
 # List local branches
 git branch
@@ -50,6 +53,7 @@ git branch -r
 ```
 
 ### Deleting Branches
+
 ```bash
 # Delete a merged branch
 git branch -d branch-name
@@ -64,7 +68,8 @@ git push origin --delete branch-name
 ## Branch Workflow
 
 ### 1. Feature Branch Workflow
-```
+
+```plaintext
 main:     A---B---C---F---G
            \         /
 feature:    D---E---/
@@ -75,7 +80,8 @@ feature:    D---E---/
 3. Merge back to main when complete
 
 ### 2. Git Flow Workflow
-```
+
+```plaintext
 main:     A---B---C---F---G
            \         /
 develop:   D---E---/
@@ -90,14 +96,18 @@ develop:   D---E---/
 ## Merging Strategies
 
 ### 1. Fast-Forward Merge
+
 When the target branch hasn't diverged:
+
 ```bash
 git checkout main
 git merge feature-branch
 ```
 
 ### 2. Three-Way Merge
+
 When both branches have new commits:
+
 ```bash
 git checkout main
 git merge feature-branch
@@ -105,7 +115,9 @@ git merge feature-branch
 ```
 
 ### 3. Squash Merge
+
 Combines all commits into one:
+
 ```bash
 git checkout main
 git merge --squash feature-branch
@@ -115,18 +127,22 @@ git commit -m "Add feature: description"
 ## Handling Merge Conflicts
 
 ### What Causes Conflicts?
+
 - Same lines changed in different ways
 - One branch deletes a file, another modifies it
 - Different content in the same location
 
 ### Resolving Conflicts
+
 1. **Identify conflicted files**:
+
    ```bash
    git status
    ```
 
 2. **Open conflicted files** and look for markers:
-   ```
+
+   ```diff
    <<<<<<< HEAD
    Your changes
    =======
@@ -135,21 +151,25 @@ git commit -m "Add feature: description"
    ```
 
 3. **Edit the file** to resolve conflicts:
-   ```
+
+   ```plaintext
    Resolved content
    ```
 
 4. **Stage the resolved file**:
+
    ```bash
    git add filename.txt
    ```
 
 5. **Complete the merge**:
+
    ```bash
    git commit
    ```
 
 ### Merge Tools
+
 ```bash
 # Use a visual merge tool
 git mergetool
@@ -161,6 +181,7 @@ git config --global merge.tool vimdiff
 ## Advanced Branching
 
 ### Branch Protection
+
 ```bash
 # Push and set upstream
 git push -u origin feature-branch
@@ -170,6 +191,7 @@ git branch --set-upstream-to=origin/feature-branch
 ```
 
 ### Branch Renaming
+
 ```bash
 # Rename current branch
 git branch -m new-name
@@ -179,6 +201,7 @@ git branch -m old-name new-name
 ```
 
 ### Branch Comparison
+
 ```bash
 # Compare branches
 git diff branch1..branch2
@@ -193,24 +216,28 @@ git log branch1...branch2
 ## Quiz Time! 🎯
 
 **Question 1**: What is the main purpose of branches?
+
 - A) To store different files
 - B) To work on features without affecting main code
 - C) To backup your code
 - D) To organize your files
 
 **Question 2**: What command creates and switches to a new branch?
+
 - A) `git branch new-branch`
 - B) `git checkout -b new-branch`
 - C) `git create new-branch`
 - D) `git switch new-branch`
 
 **Question 3**: When does a merge conflict occur?
+
 - A) When branches have different names
 - B) When the same lines are changed differently
 - C) When you delete a branch
 - D) When you create a new branch
 
 **Question 4**: What does `git branch -d` do?
+
 - A) Creates a new branch
 - B) Deletes a merged branch
 - C) Switches to a branch
@@ -221,11 +248,13 @@ git log branch1...branch2
 Let's practice branching:
 
 1. **Create a feature branch**:
+
    ```bash
    git checkout -b my-feature
    ```
 
 2. **Make some changes**:
+
    ```bash
    echo "Feature code" > feature.txt
    git add feature.txt
@@ -233,11 +262,13 @@ Let's practice branching:
    ```
 
 3. **Switch back to main**:
+
    ```bash
    git checkout main
    ```
 
 4. **Make changes to main**:
+
    ```bash
    echo "Main update" > main.txt
    git add main.txt
@@ -245,11 +276,13 @@ Let's practice branching:
    ```
 
 5. **Merge the feature branch**:
+
    ```bash
    git merge my-feature
    ```
 
 6. **Clean up**:
+
    ```bash
    git branch -d my-feature
    ```
@@ -257,6 +290,7 @@ Let's practice branching:
 ## Common Branch Patterns
 
 ### Feature Branch Pattern
+
 ```bash
 # Start new feature
 git checkout -b feature/user-authentication
@@ -270,6 +304,7 @@ git branch -d feature/user-authentication
 ```
 
 ### Hotfix Pattern
+
 ```bash
 # Create hotfix from main
 git checkout -b hotfix/critical-bug-fix

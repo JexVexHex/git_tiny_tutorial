@@ -8,7 +8,7 @@ Merging is the heart of collaborative Git workflows. Whether you're synchronizin
 
 ### Fast-Forward Merge
 
-```
+```plaintext
 Before:              After fast-forward:
 A---B---C (main)     A---B---C---D---E (main)
          \
@@ -21,7 +21,7 @@ A---B---C (main)     A---B---C---D---E (main)
 
 ### True (Three-Way) Merge
 
-```
+```plaintext
 Before:              After true merge:
 A---B---C (main)     A---B---C---F (main)
      \                       /
@@ -34,7 +34,7 @@ A---B---C (main)     A---B---C---F (main)
 
 ### Octopus Merge (Multiple Parents)
 
-```
+```plaintext
    feature-a
       \
 main---M
@@ -115,10 +115,10 @@ When conflicts occur, Git:
 
 ### Recognizing Conflict Markers
 
-```text
+```diff
 <<<<<<< HEAD
 Your branch changes
-||||||| base
+|||||||| base
 Common ancestor content (diff3 style)
 =======
 Incoming branch changes

@@ -96,7 +96,7 @@ git rebase -i _commit-hash_
 - **drop**: Remove the commit entirely
 
 ### Example Rebase Session
-```
+```plaintext
 pick a1b2c3d Add user authentication
 reword d4e5f6g Fix login bug
 squash g7h8i9j Update tests
@@ -135,7 +135,7 @@ git cherry-pick --abort
 ### Branching Strategies
 
 #### 1. Git Flow
-```
+```plaintext
 main:     A---B---C---F---G---H
            \         /     /
 develop:   D---E---/     /
@@ -144,7 +144,7 @@ feature:      I---J---K-/
 ```
 
 #### 2. GitHub Flow
-```
+```plaintext
 main:     A---B---C---D---E
            \     /   \   /
 feature1:   F---G     H-I
@@ -152,7 +152,7 @@ feature2:             J-K
 ```
 
 #### 3. GitLab Flow
-```
+```plaintext
 main:     A---B---C---D---E
            \         /
 production: F---G---H

@@ -24,7 +24,7 @@ git log --oneline -5
 ### Fast-Forward Merge
 A **fast-forward merge** happens when the target branch hasn't diverged from your current branch. Git simply moves the branch pointer forward.
 
-```
+```plaintext
 Before:
 A---B---C (main)
      \
@@ -63,7 +63,7 @@ git merge --no-ff branch-name
 ### Rebase
 **Rebase** rewrites commit history by moving commits from one branch to another. It creates a linear history.
 
-```
+```plaintext
 Before rebase:
 A---B---C (main)
      \
@@ -134,14 +134,14 @@ git log --oneline --graph
 ### Merge vs Rebase
 
 **Merge** preserves history:
-```
+```plaintext
 A---B---C---F (main)
      \     /
       D---E (feature)
 ```
 
 **Rebase** creates linear history:
-```
+```plaintext
 A---B---C---D'---E' (main)
 ```
 

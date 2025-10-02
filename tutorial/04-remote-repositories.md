@@ -137,7 +137,7 @@ git status -sb
 ## Collaboration Workflows
 
 ### 1. Fork and Pull Request Workflow
-```
+```plaintext
 Original Repo:  A---B---C---D
                      \
 Your Fork:      A---B---E---F
@@ -150,7 +150,7 @@ Your Fork:      A---B---E---F
 5. Create pull request
 
 ### 2. Shared Repository Workflow
-```
+```plaintext
 Main Repo:  A---B---C---D---E
                  \     /
 Developer:        F---G
