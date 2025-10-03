@@ -71,3 +71,12 @@ This is an interactive Git tutorial application built with vanilla JavaScript, H
 - All assets served directly from filesystem
 - CORS restrictions apply when opening index.html directly (use local server)
 - Tutorial content stored as separate markdown files for easy editing
+
+
+## Gemini-CLI Delegation
+- For codebase searches, file analysis, and context gathering tasks, use Gemini-CLI:
+```sh
+gemini -p "<specific_search_or_analysis_prompt>"
+```
+- Use Gemini results to inform your analysis and recommendations. Delegate heavy-lifting tasks to Gemini to preserve Claude tokens for reasoning and orchestration.
+
