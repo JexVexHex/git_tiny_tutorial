@@ -1779,6 +1779,14 @@ body {
     letter-spacing: 0.025em;
 }
 
+/* Trademark Symbol Styling */
+.trademark {
+    font-size: 0.6em;
+    vertical-align: super;
+    line-height: 0;
+    font-weight: normal;
+}
+
 /* Print Styles */
 @media print {
     .navbar,
