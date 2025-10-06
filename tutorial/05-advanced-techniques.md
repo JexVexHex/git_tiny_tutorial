@@ -279,6 +279,12 @@ git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Crese
 - C) To backup repositories
 - D) To create branches
 
+**Question 5**: What does `git rebase --skip` do?
+- A) Skips the current commit and continues rebasing
+- B) Aborts the entire rebase operation
+- C) Resolves merge conflicts automatically
+- D) Creates a new branch from the current commit
+
 ## Practice Exercise
 
 Let's practice advanced techniques:
@@ -319,6 +325,36 @@ Let's practice advanced techniques:
    git config --global alias.br branch
    ```
 
+5. **Practice rebase conflict handling** (including --skip):
+   ```bash
+   # Create a branch with some commits
+   git checkout -b test-rebase
+   echo "Line 1" > test.txt
+   git add test.txt
+   git commit -m "Add line 1"
+
+   echo "Line 2" >> test.txt
+   git add test.txt
+   git commit -m "Add line 2"
+
+   # Switch to main and create conflicting commit
+   git checkout main
+   echo "Conflicting line 1" > test.txt
+   git add test.txt
+   git commit -m "Add conflicting line 1"
+
+   # Try to rebase - this will cause conflicts
+   git checkout test-rebase
+   git rebase main
+
+   # If you want to skip the conflicting commit instead of resolving:
+   git rebase --skip
+
+   # Check the result
+   git log --oneline
+   cat test.txt
+   ```
+
 ## Real-World Scenarios
 
 ### Scenario 1: Accidentally Committed to Main
@@ -338,13 +374,26 @@ git push origin main
 
 ### Scenario 3: Merge Conflicts in Rebase
 ```bash
-# Resolve conflicts
+# Option 1: Resolve conflicts and continue
 git add .
 git rebase --continue
 
-# Or abort the rebase
+# Option 2: Skip the problematic commit
+git rebase --skip
+
+# Option 3: Abort the rebase
 git rebase --abort
 ```
+
+#### When to Use `git rebase --skip`
+
+Use `--skip` when:
+- A commit has conflicts that you don't want to resolve
+- The commit is no longer needed or relevant
+- The commit has already been applied upstream
+- You want to completely drop a commit from the rebase operation
+
+**Note**: `--skip` permanently removes the commit from your branch history, so use it carefully!
 
 ## Best Practices
 
