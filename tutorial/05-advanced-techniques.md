@@ -95,6 +95,26 @@ git rebase -i _commit-hash_
 - **squash**: Combine with previous commit
 - **drop**: Remove the commit entirely
 
+### Reapplying Cherry-Picks
+
+By default, `git rebase` automatically detects and drops commits that are "clean cherry-picks" of upstream commits (commits that introduce the same changes as something already upstream). The `--reapply-cherry-picks` option forces Git to reapply ALL clean cherry-picks instead of dropping them.
+
+```bash
+# Reapply all cherry-picked commits during rebase
+git rebase origin/main --reapply-cherry-picks
+
+# Often used with --keep-base for better performance
+git rebase --keep-base --reapply-cherry-picks origin/main
+```
+
+**When to use `--reapply-cherry-picks`:**
+- When you want to maintain exact commit history even with duplicate patches
+- When working with complex branching strategies where commits might be duplicated
+- When you need to preserve all commits regardless of content duplication
+- When `--keep-base` is used (it automatically implies `--reapply-cherry-picks`)
+
+**Performance Note:** This option can improve performance by avoiding the expensive operation of reading all upstream commits to detect duplicates.
+
 ### Example Rebase Session
 ```plaintext
 pick a1b2c3d Add user authentication
@@ -285,6 +305,12 @@ git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Crese
 - C) Resolves merge conflicts automatically
 - D) Creates a new branch from the current commit
 
+**Question 6**: What does `git rebase --reapply-cherry-picks` do?
+- A) Prevents cherry-picking during rebase
+- B) Forces rebase to keep duplicate commits instead of dropping them
+- C) Applies only cherry-picked commits during rebase
+- D) Removes all cherry-pick commits from history
+
 ## Practice Exercise
 
 Let's practice advanced techniques:
@@ -353,6 +379,32 @@ Let's practice advanced techniques:
    # Check the result
    git log --oneline
    cat test.txt
+   ```
+
+6. **Practice rebase with --reapply-cherry-picks**:
+   ```bash
+   # Create a scenario where commits might be duplicated
+   git checkout -b duplicate-test
+   echo "Shared change" > shared.txt
+   git add shared.txt
+   git commit -m "Add shared functionality"
+
+   # Switch to main and make the same change
+   git checkout main
+   echo "Shared change" > shared.txt
+   git add shared.txt
+   git commit -m "Add shared functionality (upstream)"
+
+   # Try regular rebase - the duplicate commit will be dropped
+   git checkout duplicate-test
+   git rebase main
+
+   # Reset and try with --reapply-cherry-picks to keep both commits
+   git reset --hard HEAD@{1}  # Go back to before rebase
+   git rebase main --reapply-cherry-picks
+
+   # Compare the results
+   git log --oneline
    ```
 
 ## Real-World Scenarios
