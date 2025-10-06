@@ -46,6 +46,7 @@
     "not dead"
   ],
   "dependencies": {
-    "@anthropic-ai/claude-code": "^2.0.1"
+    "@anthropic-ai/claude-code": "^2.0.1",
+    "@github/copilot": "^0.0.334"
   }
 }
