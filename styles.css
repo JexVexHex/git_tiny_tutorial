@@ -410,6 +410,7 @@ body {
     border-radius: var(--radius-md);
     transition: all 0.2s ease;
     position: relative;
+    font-size: 0.9rem;
 }
 
 .nav-link:hover {
