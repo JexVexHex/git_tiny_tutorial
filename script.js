@@ -8,7 +8,9 @@ class GitTutorial {
             '03-branches-and-merging.md',
             '04-remote-repositories.md',
             '05-advanced-techniques.md',
-            '06-git-merge-mastery.md'
+            '06-git-merge-mastery.md',
+            '07-git-worktrees.md',
+            '08-git-tags.md'
         ];
         this.quizData = this.initializeQuizData();
         this.exerciseData = this.initializeExerciseData();
@@ -414,6 +416,85 @@ class GitTutorial {
                     correct: 1,
                     explanation: "`--squash` lets you combine all changes into a single commit without creating a merge commit."
                 }
+            ],
+            6: [ // Git Worktrees
+                {
+                    question: "What is the main advantage of git worktrees over stashing?",
+                    options: [
+                        "Worktrees use less disk space",
+                        "Worktrees allow working on multiple branches simultaneously",
+                        "Worktrees are faster than stashing",
+                        "Worktrees automatically commit your changes"
+                    ],
+                    correct: 1,
+                    explanation: "Git worktrees let you work on multiple branches at the same time in separate directories, eliminating the need to stash and switch."
+                },
+                {
+                    question: "What command creates a new worktree for an existing branch?",
+                    options: [
+                        "`git worktree create <path> <branch>`",
+                        "`git worktree add <path> <branch>`",
+                        "`git checkout --worktree <path> <branch>`",
+                        "`git branch --worktree <path> <branch>`"
+                    ],
+                    correct: 1,
+                    explanation: "`git worktree add <path> <branch>` creates a new worktree at the specified path checked out to the specified branch."
+                },
+                {
+                    question: "What do all worktrees in a repository share?",
+                    options: [
+                        "The working directory contents",
+                        "The staging area (index)",
+                        "The repository history and configuration",
+                        "The HEAD pointer"
+                    ],
+                    correct: 2,
+                    explanation: "All worktrees share repository history, configuration, and refs, but each has its own HEAD, index, and working directory."
+                },
+                {
+                    question: "How do you properly remove a worktree?",
+                    options: [
+                        "`rm -rf <worktree-path>`",
+                        "`git worktree delete <path>`",
+                        "`git worktree remove <path>`",
+                        "`git branch -d <worktree-branch>`"
+                    ],
+                    correct: 2,
+                    explanation: "`git worktree remove <path>` properly removes a worktree and cleans up its metadata. Never just delete the directory."
+                },
+                {
+                    question: "When should you lock a worktree?",
+                    options: [
+                        "To prevent other users from accessing it",
+                        "When it's on a removable drive or network share",
+                        "To make it read-only",
+                        "To speed up git operations"
+                    ],
+                    correct: 1,
+                    explanation: "Locking prevents automatic pruning of worktree metadata, useful for worktrees on portable devices that may be temporarily unavailable."
+                },
+                {
+                    question: "What happens if you try to create a worktree for a branch that's already checked out?",
+                    options: [
+                        "Git automatically switches to that branch",
+                        "Git creates a new branch with a different name",
+                        "Git shows an error by default",
+                        "The existing worktree is replaced"
+                    ],
+                    correct: 2,
+                    explanation: "Git prevents checking out the same branch in multiple worktrees by default to avoid conflicts. Use `--force` to override (rarely needed)."
+                },
+                {
+                    question: "What command shows all active worktrees?",
+                    options: [
+                        "`git worktree show`",
+                        "`git worktree list`",
+                        "`git worktree status`",
+                        "`git branch --worktrees`"
+                    ],
+                    correct: 1,
+                    explanation: "`git worktree list` displays all worktrees with their paths, commit hashes, and current branches."
+                }
             ]
         };
     }
@@ -618,7 +699,90 @@ git merge --abort
 git merge feature/beta  # rerere should reapply your resolution
 \`\`\`
 
-**Goal:** Understand conflict markers, practice deliberate resolution, and experience how rerere accelerates repeated merges.`
+**Goal:** Understand conflict markers, practice deliberate resolution, and experience how rerere accelerates repeated merges.`,
+
+            6: `# Practice Exercise: Worktree Workflow Mastery
+
+Experience the power of parallel development with git worktrees:
+
+\`\`\`bash
+# 1. Create a practice repository
+mkdir worktree-practice
+cd worktree-practice
+git init
+echo "Main app" > app.txt
+git add app.txt
+git commit -m "Initial commit"
+
+# 2. Create your first worktree for a new feature
+git worktree add ../worktree-feature -b feature/new-ui
+# Notice: new directory created outside current folder
+
+# 3. Check worktree list
+git worktree list
+# You should see:
+# /path/to/worktree-practice  abc123 [main]
+# /path/to/worktree-feature   abc123 [feature/new-ui]
+
+# 4. Work in the worktree
+cd ../worktree-feature
+echo "New UI code" > ui.txt
+git add ui.txt
+git commit -m "feat: add new UI"
+
+# 5. Simulate emergency hotfix scenario
+# Don't leave the feature worktree!
+cd ../worktree-practice
+git worktree add ../worktree-hotfix main -b hotfix/urgent
+
+cd ../worktree-hotfix
+echo "Critical fix" > fix.txt
+git add fix.txt
+git commit -m "fix: critical bug"
+
+# 6. Merge hotfix and clean up
+git checkout main
+git merge hotfix/urgent
+git branch -d hotfix/urgent
+cd ../worktree-practice
+git worktree remove ../worktree-hotfix
+
+# 7. Back to feature work (untouched!)
+cd ../worktree-feature
+git status  # Your work is exactly as you left it!
+
+# 8. Finish feature and clean up
+cd ../worktree-practice
+git merge feature/new-ui
+git worktree remove ../worktree-feature
+git branch -d feature/new-ui
+
+# 9. Verify everything is clean
+git worktree list  # Should only show main worktree
+git log --oneline --graph --all
+\`\`\`
+
+**Bonus Challenge:**
+
+Create three worktrees simultaneously and work on different branches:
+
+\`\`\`bash
+# From your main worktree
+git worktree add ../wt-experiment main -b experiment/api-v2
+git worktree add ../wt-review main -b review/pr-123  
+git worktree add /tmp/wt-test --detach
+
+# Open each in different terminal tabs/windows
+# Try making commits in different worktrees
+# Observe how they share the same repository
+
+# Clean up when done
+git worktree remove ../wt-experiment
+git worktree remove ../wt-review
+git worktree remove /tmp/wt-test
+\`\`\`
+
+**Goal:** Master creating, using, and cleaning up worktrees. Experience how worktrees eliminate context switching and enable true parallel development.`
         };
     }
 
@@ -687,7 +851,8 @@ git merge feature/beta  # rerere should reapply your resolution
             'Branches and Merging - Working with Multiple Versions',
             'Remote Repositories - Collaboration and Backup',
             'Advanced Git Techniques - Power User Skills',
-            'Git Merge Mastery - Orchestrating Histories'
+            'Git Merge Mastery - Orchestrating Histories',
+            'Git Worktrees - Parallel Development Made Easy'
         ];
         return titles[lessonIndex] || 'Lesson';
     }

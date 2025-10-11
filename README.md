@@ -4,7 +4,7 @@ A comprehensive, interactive Git tutorial designed to bring beginners up-to-spee
 
 ## 🚀 Features
 
-- **5 Comprehensive Lessons**: From Git basics to advanced techniques
+- **7 Comprehensive Lessons**: From Git basics to advanced worktrees
 - **Interactive Quizzes**: Test your knowledge with immediate feedback
 - **Practice Exercises**: Hands-on coding exercises with real Git commands
 - **Micro-Animations**: Engaging visual learning experience
@@ -14,6 +14,16 @@ A comprehensive, interactive Git tutorial designed to bring beginners up-to-spee
 
 ## 📚 Content Coverage
 
+### Lessons
+
+1. **Git Basics** - Understanding version control fundamentals
+2. **Git Terminology** - Master the language of Git
+3. **Branches and Merging** - Work with multiple versions
+4. **Remote Repositories** - Collaboration and backup strategies
+5. **Advanced Techniques** - Power user skills (stashing, rebasing, cherry-picking)
+6. **Git Merge Mastery** - Orchestrating histories like a pro
+7. **Git Worktrees** - Parallel development without context switching (NEW!)
+
 ### Git Terminology Covered
 - ✅ HEAD and MERGE_HEAD
 - ✅ Fast-forward merges
@@ -21,6 +31,7 @@ A comprehensive, interactive Git tutorial designed to bring beginners up-to-spee
 - ✅ Reset (soft, mixed, hard)
 - ✅ Commit lifecycle
 - ✅ Staging area and working directory
+- ✅ Worktrees and parallel development
 
 ### Practical Skills Taught
 - ✅ Repository initialization and management
@@ -28,6 +39,7 @@ A comprehensive, interactive Git tutorial designed to bring beginners up-to-spee
 - ✅ Remote repository collaboration
 - ✅ Conflict resolution
 - ✅ Advanced techniques (stashing, cherry-picking, rebasing)
+- ✅ Working with multiple branches simultaneously using worktrees
 - ✅ Best practices and workflows
 
 ## 🎯 Learning Objectives
@@ -40,6 +52,8 @@ By the end of this tutorial, you will be able to:
 - ✅ Work with remote repositories (GitHub, GitLab, etc.)
 - ✅ Use advanced Git techniques like rebasing, stashing, and cherry-picking
 - ✅ Handle merge conflicts and resolve them
+- ✅ Work on multiple branches simultaneously using worktrees
+- ✅ Eliminate context switching during emergency fixes
 - ✅ Follow Git best practices for real-world development
 
 ## 🧑‍💻 Target Audience
