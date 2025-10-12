@@ -47,6 +47,7 @@
   ],
   "dependencies": {
     "@anthropic-ai/claude-code": "^2.0.1",
-    "@github/copilot": "^0.0.334"
+    "@github/copilot": "^0.0.334",
+    "@google/gemini-cli": "^0.8.2"
   }
 }
