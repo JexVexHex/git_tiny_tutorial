@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an interactive Git tutorial application built with vanilla JavaScript, HTML, and CSS. It provides 6 comprehensive lessons teaching Git concepts through hands-on exercises, quizzes, and interactive learning.
+This is an interactive Git tutorial application built with vanilla JavaScript, HTML, and CSS. It provides 9 comprehensive lessons teaching Git concepts through hands-on exercises, quizzes, and interactive learning, including a meta-lesson on extending the tutorial itself.
 
 ## Development Commands
 
@@ -23,7 +23,7 @@ This is an interactive Git tutorial application built with vanilla JavaScript, H
 - `index.html` - Main application entry point with navigation and theme system
 - `script.js` - GitTutorial class handling all interactive functionality
 - `styles.css` - Complete styling with CSS custom properties and animations
-- `tutorial/` - Markdown lesson files (01-06)
+- `tutorial/` - Markdown lesson files (01-09)
 
 ### Key Components
 
@@ -35,10 +35,11 @@ This is an interactive Git tutorial application built with vanilla JavaScript, H
 - Quiz and exercise data initialized in constructor
 
 #### Lesson System
-- 6 lessons in numbered markdown files (01-06)
+- 9 lessons in numbered markdown files (01-09)
 - Loaded dynamically via fetch() and parsed with marked.js
 - Content includes interactive quizzes and practice exercises
 - Navigation supports both sequential and direct lesson access
+- Lesson 09 is a meta-lesson teaching users how to extend the tutorial
 
 #### Theme System
 - System/light/dark theme selection

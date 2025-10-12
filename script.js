@@ -10,7 +10,8 @@ class GitTutorial {
             '05-advanced-techniques.md',
             '06-git-merge-mastery.md',
             '07-git-worktrees.md',
-            '08-git-tags.md'
+            '08-git-tags.md',
+            '09-extending-tutorial.md'
         ];
         this.quizData = this.initializeQuizData();
         this.exerciseData = this.initializeExerciseData();
@@ -495,6 +496,98 @@ class GitTutorial {
                     correct: 1,
                     explanation: "`git worktree list` displays all worktrees with their paths, commit hashes, and current branches."
                 }
+            ],
+            7: [ // Git Tags
+                {
+                    question: "What is the main difference between annotated and lightweight tags?",
+                    options: [
+                        "Lightweight tags are faster",
+                        "Annotated tags store metadata like author, date, and message",
+                        "Lightweight tags can't be pushed to remote",
+                        "There is no difference"
+                    ],
+                    correct: 1,
+                    explanation: "Annotated tags are stored as full objects in Git with metadata, while lightweight tags are just pointers to commits."
+                },
+                {
+                    question: "Which command creates an annotated tag?",
+                    options: [
+                        "`git tag v1.0.0`",
+                        "`git tag -a v1.0.0 -m \"Release 1.0\"`",
+                        "`git tag --lightweight v1.0.0`",
+                        "`git create-tag v1.0.0`"
+                    ],
+                    correct: 1,
+                    explanation: "The `-a` flag creates an annotated tag, and `-m` provides the tag message."
+                },
+                {
+                    question: "How do you push a specific tag to a remote repository?",
+                    options: [
+                        "`git push tag v1.0.0`",
+                        "`git push origin v1.0.0`",
+                        "`git push --tag v1.0.0`",
+                        "`git tag push v1.0.0`"
+                    ],
+                    correct: 1,
+                    explanation: "`git push origin <tagname>` pushes a specific tag to the remote repository."
+                },
+                {
+                    question: "What does `git tag -l \"v1.*\"` do?",
+                    options: [
+                        "Lists all tags",
+                        "Lists tags matching the pattern v1.*",
+                        "Deletes tags matching v1.*",
+                        "Creates a tag named v1.*"
+                    ],
+                    correct: 1,
+                    explanation: "The `-l` flag with a pattern lists only tags that match the specified pattern."
+                }
+            ],
+            8: [ // Extending Tutorial
+                {
+                    question: "Where do you add the filename of a new lesson?",
+                    options: [
+                        "In `index.html` only",
+                        "In the `this.lessons` array in `script.js`",
+                        "In `styles.css`",
+                        "In the `tutorial/` directory only"
+                    ],
+                    correct: 1,
+                    explanation: "The lesson filename must be added to the `this.lessons` array in the GitTutorial constructor in `script.js`."
+                },
+                {
+                    question: "What is the correct format for quiz question indices?",
+                    options: [
+                        "1-based (first option = 1)",
+                        "0-based (first option = 0)",
+                        "Alphabetical (A, B, C, D)",
+                        "Random numbers"
+                    ],
+                    correct: 1,
+                    explanation: "Quiz answers use 0-based indexing, so the first option is 0, second is 1, etc."
+                },
+                {
+                    question: "Why must you use a local server instead of opening `index.html` directly?",
+                    options: [
+                        "For better performance",
+                        "To avoid CORS restrictions when fetching markdown files",
+                        "To enable syntax highlighting",
+                        "To save progress"
+                    ],
+                    correct: 1,
+                    explanation: "Browsers block fetch requests to local files (file:// protocol) due to CORS security. A local server uses http:// protocol."
+                },
+                {
+                    question: "In which method do you add practice exercises?",
+                    options: [
+                        "`initializeQuizData()`",
+                        "`initializeExerciseData()`",
+                        "`getLessonTitle()`",
+                        "`loadLesson()`"
+                    ],
+                    correct: 1,
+                    explanation: "Practice exercises are added in the `initializeExerciseData()` method with the lesson index as the key."
+                }
             ]
         };
     }
@@ -782,7 +875,155 @@ git worktree remove ../wt-review
 git worktree remove /tmp/wt-test
 \`\`\`
 
-**Goal:** Master creating, using, and cleaning up worktrees. Experience how worktrees eliminate context switching and enable true parallel development.`
+**Goal:** Master creating, using, and cleaning up worktrees. Experience how worktrees eliminate context switching and enable true parallel development.`,
+            7: `# Practice Exercise: Git Tags in Action
+
+Put your tag knowledge into practice with this comprehensive exercise:
+
+\`\`\`bash
+# 1. Create a practice repository
+mkdir tag-practice
+cd tag-practice
+git init
+
+# 2. Create some commits to simulate a project
+echo "v1.0 features" > app.js
+git add app.js
+git commit -m "feat: initial release"
+
+# 3. Create your first release tag
+git tag -a v1.0.0 -m "Release version 1.0.0 - Initial stable release"
+
+# 4. Continue development
+echo "v1.1 features" >> app.js
+git add app.js
+git commit -m "feat: add new feature"
+
+# 5. Create a minor version tag
+git tag -a v1.1.0 -m "Release version 1.1.0 - Feature update"
+
+# 6. List all tags
+git tag
+
+# 7. View tag details
+git show v1.0.0
+
+# 8. Create a lightweight tag for testing
+git tag v1.1.0-beta
+
+# 9. Compare tags
+git diff v1.0.0 v1.1.0
+
+# 10. Practice tag patterns
+git tag -l "v1.*"
+
+# 11. Checkout a specific tag (detached HEAD)
+git checkout v1.0.0
+# Look around, then return
+git checkout main
+
+# 12. Delete a tag
+git tag -d v1.1.0-beta
+
+# 13. Create a tag for an older commit
+git log --oneline
+git tag -a v0.9.0 <commit-hash> -m "Retroactive tag for beta"
+\`\`\`
+
+**Advanced Challenge:**
+
+Simulate a complete release workflow:
+
+\`\`\`bash
+# 1. Create a release branch
+git checkout -b release/2.0.0
+
+# 2. Make release preparations
+echo "2.0.0" > VERSION
+git add VERSION
+git commit -m "chore: bump version to 2.0.0"
+
+# 3. Tag the release
+git tag -a v2.0.0 -m "Release 2.0.0 - Major update
+
+New features:
+- Feature A
+- Feature B
+
+Breaking changes:
+- Changed API endpoint structure"
+
+# 4. Merge back to main
+git checkout main
+git merge release/2.0.0
+
+# 5. Push tags to remote (if you have a remote)
+git push origin v2.0.0
+git push origin --tags
+\`\`\`
+
+**Goal:** Master creating, viewing, and managing tags for version control and release management.`,
+            8: `# Practice Exercise: Extending the Tutorial
+
+Now it's your turn! Create a custom lesson from scratch:
+
+## Part 1: Create the Lesson File
+
+Create a new markdown file in the tutorial directory with your lesson content.
+
+**File**: \`tutorial/99-my-test-lesson.md\`
+
+Include these sections:
+- Introduction
+- Main concepts with code examples
+- Quiz questions
+- Practice exercises
+
+## Part 2: Register in script.js
+
+Add your lesson filename to the \`this.lessons\` array in the constructor (around line 5).
+
+## Part 3: Add Quiz Data
+
+In the \`initializeQuizData()\` method, add quiz questions for your lesson using the correct lesson index (0-based).
+
+## Part 4: Add Exercise Data
+
+In the \`initializeExerciseData()\` method, add practice exercises with bash commands for learners to try.
+
+## Part 5: Add Navigation Link
+
+In \`index.html\`, add a navigation link in the \`nav-menu\` div with the correct \`data-lesson\` attribute.
+
+## Part 6: Update Lesson Title
+
+In the \`getLessonTitle()\` method, add your lesson title to the titles array.
+
+## Part 7: Test Everything
+
+Start a local server and verify:
+- Lesson appears in navigation
+- Clicking nav link loads the lesson
+- Markdown renders correctly
+- Quiz questions work
+- Exercise appears
+- Navigation buttons work
+
+**Commands to test:**
+- \`python3 -m http.server 8000\`
+- Open \`http://localhost:8000\` in your browser
+
+## Bonus Challenge
+
+Create a lesson on an advanced Git topic:
+- GitFlow or GitHub Flow workflows
+- Git hooks and automation
+- Git bisect for debugging
+- Git submodules or subtrees
+- Performance optimization
+- Team collaboration practices
+
+**Goal:** Successfully create, register, and test a complete custom lesson with quiz and exercises.`
         };
     }
 
@@ -852,7 +1093,9 @@ git worktree remove /tmp/wt-test
             'Remote Repositories - Collaboration and Backup',
             'Advanced Git Techniques - Power User Skills',
             'Git Merge Mastery - Orchestrating Histories',
-            'Git Worktrees - Parallel Development Made Easy'
+            'Git Worktrees - Parallel Development Made Easy',
+            'Git Tags - Marking Important Milestones',
+            'Extending the Tutorial - Add Your Own Lessons'
         ];
         return titles[lessonIndex] || 'Lesson';
     }
