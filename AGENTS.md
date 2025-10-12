@@ -75,6 +75,7 @@ This is an interactive Git tutorial application built with vanilla JavaScript, H
 
 ## Gemini-CLI Delegation
 - For codebase searches, file analysis, and context gathering tasks, use Gemini-CLI:
+- Notify the user with "Using Gemini CLI for {{task}}"
 ```sh
 gemini -p "<specific_search_or_analysis_prompt>"
 ```
