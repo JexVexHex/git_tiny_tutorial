@@ -10,7 +10,8 @@ class GitTutorial {
             '05-advanced-techniques.md',
             '06-git-merge-mastery.md',
             '07-git-worktrees.md',
-            '08-git-tags.md'
+            '08-git-tags.md',
+            '09-gitlab-essentials.md'
         ];
         this.quizData = this.initializeQuizData();
         this.exerciseData = this.initializeExerciseData();
@@ -852,7 +853,9 @@ git worktree remove /tmp/wt-test
             'Remote Repositories - Collaboration and Backup',
             'Advanced Git Techniques - Power User Skills',
             'Git Merge Mastery - Orchestrating Histories',
-            'Git Worktrees - Parallel Development Made Easy'
+            'Git Worktrees - Parallel Development Made Easy',
+            'Git Tags - Marking Milestones in Your Project',
+            'GitLab Essentials - Collaboration on GitLab'
         ];
         return titles[lessonIndex] || 'Lesson';
     }
