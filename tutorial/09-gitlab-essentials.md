@@ -514,6 +514,23 @@ Build Release → Deploy to Production
 - C) Add an issue link in the commit message
 - D) Both A and C are correct
 
+## Quiz Answers 📋
+
+**Answer 1**: B  
+GitLab includes built-in CI/CD pipelines as a native feature, while GitHub relies on GitHub Actions as a separate integration.
+
+**Answer 2**: C  
+GitLab CI/CD is configured using the `.gitlab-ci.yml` file in the repository root.
+
+**Answer 3**: B  
+When pushing an existing repository to GitLab, avoid initializing the GitLab project with a README, .gitignore, or LICENSE, as this creates conflicts with your existing history.
+
+**Answer 4**: B  
+A Merge Request is GitLab's term for a code review request before merging branches into the main codebase—equivalent to GitHub's Pull Request.
+
+**Answer 5**: A  
+Use "Closes #123" (or "Fixes #123") in the Merge Request description to automatically link and close an issue when the MR is merged. While commit messages can also include these keywords, the MR description is the primary and recommended location.
+
 ## Practice Exercise
 
 Let's practice with GitLab:

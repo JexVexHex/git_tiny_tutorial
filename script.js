@@ -496,6 +496,63 @@ class GitTutorial {
                     correct: 1,
                     explanation: "`git worktree list` displays all worktrees with their paths, commit hashes, and current branches."
                 }
+            ],
+            8: [ // GitLab Essentials
+                {
+                    question: "What is the main difference between GitLab and GitHub?",
+                    options: [
+                        "GitLab has better Git support",
+                        "GitLab includes built-in CI/CD, while GitHub uses Actions",
+                        "GitLab only works with Linux",
+                        "GitHub has more features than GitLab"
+                    ],
+                    correct: 1,
+                    explanation: "GitLab delivers CI/CD as a core platform feature, while GitHub relies on GitHub Actions for automation."
+                },
+                {
+                    question: "What file configures GitLab CI/CD pipelines?",
+                    options: [
+                        "`.github-ci.yml`",
+                        "`gitlab-pipeline.yml`",
+                        "`.gitlab-ci.yml`",
+                        "`ci-config.yaml`"
+                    ],
+                    correct: 2,
+                    explanation: "Placing a `.gitlab-ci.yml` file in the repository root tells GitLab how to run CI/CD pipelines."
+                },
+                {
+                    question: "When pushing an existing repository to GitLab, what should you avoid?",
+                    options: [
+                        "Using HTTPS instead of SSH",
+                        "Initializing the GitLab project with a README",
+                        "Using `git push --all`",
+                        "Adding tags to commits"
+                    ],
+                    correct: 1,
+                    explanation: "If you initialize the GitLab project with starter files, your first push from an existing repository will conflict with the remote history."
+                },
+                {
+                    question: "What is a Merge Request in GitLab?",
+                    options: [
+                        "A request to merge two repositories",
+                        "A request for code review before merging branches",
+                        "A way to request features from GitLab",
+                        "An automated merge operation"
+                    ],
+                    correct: 1,
+                    explanation: "Merge Requests provide GitLab's code review workflow, letting teams discuss, test, and approve changes before merging."
+                },
+                {
+                    question: "How can you link an issue to close it automatically via a Merge Request?",
+                    options: [
+                        "Use \"Closes #123\" in the MR description",
+                        "Manually close the issue after merging",
+                        "Add an issue link in the commit message",
+                        "Both A and C are correct"
+                    ],
+                    correct: 0,
+                    explanation: "Including keywords like \"Closes #123\" (or \"Fixes #123\") in the Merge Request description automatically closes the referenced issue once the MR merges."
+                }
             ]
         };
     }
@@ -783,7 +840,47 @@ git worktree remove ../wt-review
 git worktree remove /tmp/wt-test
 \`\`\`
 
-**Goal:** Master creating, using, and cleaning up worktrees. Experience how worktrees eliminate context switching and enable true parallel development.`
+**Goal:** Master creating, using, and cleaning up worktrees. Experience how worktrees eliminate context switching and enable true parallel development.`,
+            8: `# Practice Exercise: GitLab Workflow Mastery
+
+Practice the GitLab lifecycle from repository creation to merge request collaboration:
+
+\`\`\`bash
+# 1. Create a blank project on GitLab (no README)
+#    Project name: my-gitlab-project
+
+# 2. Initialize a local repository
+mkdir ~/my-gitlab-project
+cd ~/my-gitlab-project
+git init
+echo "# My GitLab Project" > README.md
+git add README.md
+git commit -m "Initial commit"
+
+# 3. Connect the remote and push
+git remote add origin https://gitlab.com/yourusername/my-gitlab-project.git
+git branch -M main
+git push -u origin main
+
+# 4. Create a feature branch and add content
+git checkout -b feature/add-content
+echo "## Features" >> README.md
+git add README.md
+git commit -m "Add features section"
+git push -u origin feature/add-content
+
+# 5. Open a merge request in GitLab
+#    Merge Requests → New merge request
+#    Compare feature/add-content → main
+#    Add a descriptive title, summary, and include "Closes #<issue>" when applicable
+
+# 6. Review the MR, wait for pipeline results, and merge when approved
+
+# 7. Track follow-up work with an issue
+#    Issues → New issue → Title: "Add code examples"
+\`\`\`
+
+**Goal:** Build muscle memory for pushing to GitLab, collaborating through merge requests, and organizing tasks with issues.`,
         };
     }
 
