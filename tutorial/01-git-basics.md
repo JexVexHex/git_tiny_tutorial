@@ -68,6 +68,16 @@ git status
 
 Shows which files have been modified, added, or deleted.
 
+
+### Restore Modified Files
+
+```bash
+git restore filename.txt
+git restore --staged filename.txt
+```
+
+Restores a file to its previous state if not commited.
+
 ### Add Files to Staging
 
 ```bash
